@@ -1,0 +1,12 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+    <h1>Bienvenido {{ user.username }}!</h1>
+    <p>Esta es la pagina de inicio de la pyme de ropa</p>
+{% else %}
+    <h1>Bienvenido!</h1>
+    <p>Esta es la pagina de inicio de la pyme de ropa</p>
+{% endif %}
+{% endblock %}

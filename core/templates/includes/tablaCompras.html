@@ -1,0 +1,42 @@
+{% if compras %}
+<table class="table table-striped">
+    <thead>
+            <tr>
+                <th scope="col">Numero Compra</th>
+                <th scope="col">Fecha Compra</th>
+                <th scope="col">Codigo Prenda</th>
+                <th scope="col">Nombre Prenda</th>
+                <th scope="col">Descripcion Prenda</th>
+                <th scope="col">Cantidad Comprada</th>
+                <th scope="col">Precio Neto Unitario</th>
+                <th scope="col">Precio Neto Total</th>
+                <th scope="col">Iva</th>
+                <th scope="col">Precio Bruto Total</th>
+                <th scope="col">Medio De Pago</th>
+                <th scope="col">Nombre Proveedor</th>
+                <th scope="col">Direccion Proveedor</th>
+            </tr>
+    </thead>
+    <tbody>
+        {% for compra in compras %}
+            <tr>
+                <td>{{ compra.numeroCompra }}</td>
+                <td>{{ compra.fechaCompra }}</td>
+                <td>{{ compra.codigoPrenda }}</td>
+                <td>{{ compra.nombrePrenda }}</td>
+                <td>{{ compra.descripcionPrenda }}</td>
+                <td>{{ compra.cantidadComprada }}</td>
+                <td>{{ compra.precioNetoUnitario }}</td>
+                <td>{{ compra.precioNetoTotal }}</td>
+                <td>{{ compra.iva }}</td>
+                <td>{{ compra.precioBrutoTotal }}</td>
+                <td>{{ compra.medioDePago }}</td>
+                <td>{{ compra.nombreProveedor }}</td>
+                <td>{{ compra.direccionProveedor }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <h3>No hay compras</h3>
+{% endif %}

@@ -1,0 +1,5 @@
+# superuser: name=admin, password=admin
+# usuario clave123
+# las ventas pertenecen a quien las realizó
+.venv/
+*.sqlite3

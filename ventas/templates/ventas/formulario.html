@@ -1,0 +1,21 @@
+{% extends 'layouts/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col col-md-4 mx-auto">
+        {% include 'includes/alertas.html' %}
+        <h1>Registrar venta</h1>
+        <form action="{% url 'ventas:formulario' %}" method="POST">
+            {% csrf_token %}
+            {{ form | crispy }}
+            <button type = "submit" class = "btn btn-primary my-1" name="agregar">Agregar venta a orden de venta</button>
+            <button type = "submit" class = "btn btn-primary my-1" name="registrar">Registrar orden de venta</button>
+        </form>
+    </div>
+
+    <div class="col col-md-8 mx-auto">
+        {% include 'includes/tablaVentas.html' %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% if ventas %}
+<table class="table table-striped">
+    <thead>
+            <tr>
+                <th scope="col">Numero Venta</th>
+                <th scope="col">Fecha Venta</th>
+                <th scope="col">Codigo Prenda</th>
+                <th scope="col">Nombre Prenda</th>
+                <th scope="col">Descripcion Prenda</th>
+                <th scope="col">Cantidad Vendida</th>
+                <th scope="col">Precio Neto Unitario</th>
+                <th scope="col">Precio Neto Total</th>
+                <th scope="col">Iva</th>
+                <th scope="col">Precio Bruto Total</th>
+                <th scope="col">Medio De Pago</th>
+            </tr>
+    </thead>
+    <tbody>
+        {% for venta in ventas %}
+            <tr>
+                <td>{{ venta.numeroVenta }}</td>
+                <td>{{ venta.fechaVenta }}</td>
+                <td>{{ venta.codigoPrenda }}</td>
+                <td>{{ venta.nombrePrenda }}</td>
+                <td>{{ venta.descripcionPrenda }}</td>
+                <td>{{ venta.cantidadVendida }}</td>
+                <td>{{ venta.precioNetoUnitario }}</td>
+                <td>{{ venta.precioNetoTotal }}</td>
+                <td>{{ venta.iva }}</td>
+                <td>{{ venta.precioBrutoTotal }}</td>
+                <td>{{ venta.medioDePago }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <h3>No hay ventas</h3>
+{% endif %}
