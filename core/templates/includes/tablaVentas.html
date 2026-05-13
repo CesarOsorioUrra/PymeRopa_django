@@ -1,4 +1,3 @@
-{% if ventas %}
 <table class="table table-striped">
     <thead>
             <tr>
@@ -15,6 +14,7 @@
                 <th scope="col">Medio De Pago</th>
             </tr>
     </thead>
+    {% if ventas %}
     <tbody>
         {% for venta in ventas %}
             <tr>
@@ -32,7 +32,5 @@
             </tr>
         {% endfor %}
     </tbody>
+    {% endif %}
 </table>
-{% else %}
-    <h3>No hay ventas</h3>
-{% endif %}

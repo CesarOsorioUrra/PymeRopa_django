@@ -1,0 +1,16 @@
+{% extends 'layouts/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col col-md-8 mx-auto">
+        {% include 'includes/alertas.html' %}
+        <h3>Publicar un aviso en la página de inicio de uno o varios empleados</h3>
+        <form action="{% url 'aviso' %}" method="POST">
+            {% csrf_token %}
+            {{ aviso | crispy }} <!--Debe coincidir con el nombre de la variable que va en el contexto de la vista, en este caso en core/views.py en el contexto se pasa una variable "aviso" la cual es la que contiene al formulario-->
+            <button type="submit" class="btn btn-primary">Publicar aviso</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% if compras %}
+
 <table class="table table-striped">
     <thead>
             <tr>
@@ -17,6 +17,7 @@
                 <th scope="col">Direccion Proveedor</th>
             </tr>
     </thead>
+    {% if compras %}
     <tbody>
         {% for compra in compras %}
             <tr>
@@ -36,7 +37,5 @@
             </tr>
         {% endfor %}
     </tbody>
+    {% endif %}
 </table>
-{% else %}
-    <h3>No hay compras</h3>
-{% endif %}

@@ -3,7 +3,6 @@
 {% block content %}
 <h1>Inventario</h1>
 
-{% if inventario %}
 <table class="table table-striped">
     <thead>
             <tr>
@@ -14,6 +13,7 @@
                 <th scope="col">Cantidad Total</th>
             </tr>
     </thead>
+    {% if inventario %}
     <tbody>
         {% for prenda in inventario %}
             <tr>
@@ -25,8 +25,6 @@
             </tr>
         {% endfor %}
     </tbody>
+    {% endif %}
 </table>
-{% else %}
-    <h3>Inventario vacio</h3>
-{% endif %}
 {% endblock %}

@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col col-md-4 mx-auto">
+    <div class="col col-md-2 mx-auto">
         {% include 'includes/alertas.html' %}
         <h1>Registrar compra</h1>
         <form action="{% url 'compras:formulario' %}" method="POST">
@@ -14,7 +14,7 @@
         </form>
     </div>
 
-    <div class="col col-md-8 mx-auto">
+    <div class="col col-md-10 mx-auto">
         {% include 'includes/tablaCompras.html' %}
     </div>
 </div>
