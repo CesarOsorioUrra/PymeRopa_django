@@ -3,10 +3,22 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-    <h1>Bienvenido {{ user.username }}!</h1>
-    <p>Esta es la pagina de inicio de la pyme de ropa</p>
+    <h1>Bienvenid@ {{ user.username }}</h1>
+    {% if user.is_superuser %}
+        <p>Usted posee permisos de administrador, lo que implica que puede acceder a la página para realizar compras, 
+            a la página de inventario, y al panel de administrción, en donde usted podrá agregar, editar, y modificar a sus empleados.
+            Haga click en "Logout" para cerrar su sesión.</p>
+    {% else %}
+        <p>Usted tiene permisos de empleado, lo que implica que puede acceder a la página para registrar ventas, y a la página para ver el inventario. Haga click en "Logout" para cerrar su sesión.</p>
+    {% endif %}
 {% else %}
-    <h1>Bienvenido!</h1>
-    <p>Esta es la pagina de inicio de la pyme de ropa</p>
+    <h1>Bienvenid@</h1>
+    <p>Esta es la página de inicio de la pyme de ropa. Para poder acceder a las funcionalidades de la página
+        usted debe iniciar sesión, si no presenta una sesión aún, debe contactarse con la persona encargada de la administración.
+    </p>
+    <p>
+        Usted no podrá acceder a las funcionalidades de la página mediante la modificación de su URL, ya que estas están configuradas
+         de modo que si lo intenta, usted será reenviad@ a una página para iniciar sesión. Haga click en "Login" para iniciar sesión.   
+    </p>
 {% endif %}
 {% endblock %}
