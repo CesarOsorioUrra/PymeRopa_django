@@ -21,7 +21,11 @@
             </p>
             <p>
                 Usted no podrá acceder a las funcionalidades de la página mediante la modificación de su URL, ya que estas están configuradas
-                de modo que si lo intenta, usted será reenviad@ a una página para iniciar sesión. Haga click en "Login" para iniciar sesión.   
+                de modo que si lo intenta, usted será reenviado a una página para iniciar sesión. Haga click en "Login" para iniciar sesión.   
+            </p>
+            <p>Existe dos tipos de usuarios que pueden acceder a esta plataforma, los super usuarios (administradores), y los usuarios que no son parte del staff (empleados).
+                 El super usuario puede acceder a la página para registrar compras, ver el inventario, enviar avisos a otros usuarios, y también puede acceder a la página de administración de django para crear nuevos usuarios.
+                 Si se crea un usuario que no sea parte del "staff", entonces ese usuario será un empleado, el cual puede acceder a la página para registrar ventas y ver el inventario. No puede acceder a la página para registrar compras, no puede acceder a la página de dministración, y tampoco puede publicar avisos.
             </p>
             <p>
                 <img src="{% static 'core/img/ropa.png' %}" alt="Imagen ropa" class="imagen-home">
