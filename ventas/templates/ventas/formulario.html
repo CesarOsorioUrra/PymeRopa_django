@@ -6,7 +6,7 @@
     <div class="col col-md-2 mx-auto">
         {% include 'includes/alertas.html' %}
         <h1>Registrar venta</h1>
-        <form action="{% url 'ventas:formulario' %}" method="POST">
+        <form action="{% url 'ventas:formulario' %}" method="POST" class="fw-bold">
             {% csrf_token %}
             {{ form | crispy }}
             <button type = "submit" class = "btn btn-primary my-1" name="agregar">Agregar venta a orden de venta</button>
