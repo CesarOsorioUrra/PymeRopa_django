@@ -1,10 +1,15 @@
 from django import forms
-from .models import Venta
+from .models import Venta, VentaDetalle
 
-class VentasForm(forms.ModelForm):
+class VentaForm(forms.ModelForm):
     class Meta:
         model = Venta
-        fields = ["numeroVenta", "fechaVenta", "codigoPrenda", "nombrePrenda", "descripcionPrenda", "cantidadVendida", 
-                  "precioNetoUnitario", "precioNetoTotal", "iva", "precioBrutoTotal", "medioDePago"
-                  ]
+        fields = ["numeroVenta", "fechaVenta", "iva", "precioBrutoTotal", "medioDePago"]
+        mediosDePago = (('Efectivo', 'Efectivo'), ('Tarjeta de credito', 'Tarjeta de credito'), 
+                        ('Tarjeta de debito', 'Tarjeta de debito'), ('Transferencia', 'Transferencia'))
+        widgets = {"medioDePago": forms.Select(choices=mediosDePago)}
         
+class VentaDetalleForm(forms.ModelForm):
+    class Meta:
+        model = VentaDetalle
+        fields = ["numeroPrenda", "cantidadVendida", "precioNetoUnitario", "precioNetoTotal"]

@@ -4,6 +4,9 @@
 <h1>Ventas</h1>
 {% include 'includes/alertas.html' %}
 <a href="{% url 'ventas:formulario' %}" class="btn btn-primary my-3">Registrar venta</a>
-
+<form action="{% url 'ventas:index' %}" method="POST" class="fw-bold">
+    {% csrf_token %}
+    <button formnovalidate type = "submit" class = "btn btn-primary my-1" name="action" value="Eliminar">Eliminar ventas</button>
+</form>
 {% include 'includes/tablaVentas.html' %}
 {% endblock %}

@@ -11,4 +11,4 @@ python manage.py runserver <br />
 El super usuario puede acceder a la página para registrar compras, ver el inventario, enviar avisos a otros usuarios, y también puede acceder a la página de administración de django para crear nuevos usuarios.<br />
 Si se crea un usuario que no sea parte del "staff", entonces ese usuario será un empleado, el cual puede acceder a la página para registrar ventas y ver el inventario. No puede acceder a la página para registrar compras, no puede acceder a la página de dministración, y tampoco puede publicar avisos.<br />
 
-La aplicación aún no permite registrar compras, registrar ventas, publicar avisos, y tampoco se puede actualizar el inventario. <br />
+La aplicación ahora si permite registrar ventas, compras, actulizar el inventario al vender y compras, eliminar todas las ventas o compras. Aun no se puede publicar avisos. Despues se debe agregar un pagina que simule a pagina admin de django en donde se pueda modificar el sueldo de los empleados. Tambien se debe agregar opcion para que se pueda elegir la venta o compra a eliminar. <br />

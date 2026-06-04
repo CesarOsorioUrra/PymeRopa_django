@@ -17,11 +17,11 @@
     <tbody>
         {% for prenda in inventario %}
             <tr>
-                <td>{{ prenda.codigoPrenda }}</td>
+                <td>{{ prenda.numeroPrenda }}</td>
                 <td>{{ prenda.nombrePrenda }}</td>
                 <td>{{ prenda.descripcionPrenda }}</td>
                 <td>{{ prenda.precioNetoUnitario }}</td>
-                <td>{{ prenda.cantidadTotal }}</td>
+                <td>{{ prenda.cantidad }}</td>
             </tr>
         {% endfor %}
     </tbody>

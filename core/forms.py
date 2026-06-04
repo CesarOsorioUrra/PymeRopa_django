@@ -5,5 +5,4 @@ User = get_user_model()
 
 class AvisoForm(forms.Form):
     usuario = forms.ModelMultipleChoiceField(queryset=User.objects.all(), label="Seleccione los usuarios", widget=forms.CheckboxSelectMultiple)
-    #usuario = forms.CharField(max_length = 200)
     mensaje = forms.CharField(max_length = 200, widget=forms.Textarea())

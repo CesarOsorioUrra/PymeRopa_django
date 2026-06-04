@@ -1,41 +1,51 @@
-
+<div class="container">
+<div class="table-responsive">
 <table class="table table-striped my-3">
+{% if compras %}
     <thead>
             <tr>
                 <th scope="col">Numero Compra</th>
                 <th scope="col">Fecha Compra</th>
-                <th scope="col">Codigo Prenda</th>
-                <th scope="col">Nombre Prenda</th>
-                <th scope="col">Descripcion Prenda</th>
-                <th scope="col">Cantidad Comprada</th>
-                <th scope="col">Precio Neto Unitario</th>
-                <th scope="col">Precio Neto Total</th>
                 <th scope="col">Iva</th>
                 <th scope="col">Precio Bruto Total</th>
                 <th scope="col">Medio De Pago</th>
                 <th scope="col">Nombre Proveedor</th>
                 <th scope="col">Direccion Proveedor</th>
+
+                <th scope="col">Numero Compra</th>
+                <th scope="col">Numero Prenda</th>
+                <th scope="col">Cantidad Comprada</th>
+                <th scope="col">Precio Neto Unitario</th>
+                <th scope="col">Precio Neto Total</th>
             </tr>
     </thead>
-    {% if compras %}
     <tbody>
+        {% regroup data by numeroCompra as compras %}
         {% for compra in compras %}
-            <tr>
-                <td>{{ compra.numeroCompra }}</td>
-                <td>{{ compra.fechaCompra }}</td>
-                <td>{{ compra.codigoPrenda }}</td>
-                <td>{{ compra.nombrePrenda }}</td>
-                <td>{{ compra.descripcionPrenda }}</td>
-                <td>{{ compra.cantidadComprada }}</td>
-                <td>{{ compra.precioNetoUnitario }}</td>
-                <td>{{ compra.precioNetoTotal }}</td>
-                <td>{{ compra.iva }}</td>
-                <td>{{ compra.precioBrutoTotal }}</td>
-                <td>{{ compra.medioDePago }}</td>
-                <td>{{ compra.nombreProveedor }}</td>
-                <td>{{ compra.direccionProveedor }}</td>
-            </tr>
+            {% for compraDetalle in compra.list %}
+                <tr>
+                    {% if forloop.first %}
+                    <td rowspan="{{ compra.list|length }}">{{ compra.grouper.numeroCompra }}</td>
+                    <td rowspan="{{ compra.list|length }}">{{ compra.grouper.fechaCompra }}</td>
+                    <td rowspan="{{ compra.list|length }}">{{ compra.grouper.iva }}</td>
+                    <td rowspan="{{ compra.list|length }}">{{ compra.grouper.precioBrutoTotal }}</td>
+                    <td rowspan="{{ compra.list|length }}">{{ compra.grouper.medioDePago }}</td>
+                    <td rowspan="{{ compra.list|length }}">{{ compra.grouper.nombreProveedor }}</td>
+                    <td rowspan="{{ compra.list|length }}">{{ compra.grouper.direccionProveedor }}</td>
+                    {% endif %}
+
+                    <td>{{ compraDetalle.numeroCompra.numeroCompra }}</td>
+                    <td>{{ compraDetalle.numeroPrenda.numeroPrenda }}</td>
+                    <td>{{ compraDetalle.cantidadComprada }}</td>
+                    <td>{{ compraDetalle.precioNetoUnitario }}</td>
+                    <td>{{ compraDetalle.precioNetoTotal }}</td>
+                </tr>
+            {% endfor %}
         {% endfor %}
     </tbody>
-    {% endif %}
+{% else %}
+<h3>No hay Compras</h3>
+{% endif %}
 </table>
+</div>
+</div>

@@ -8,9 +8,29 @@
         <h1>Registrar compra</h1>
         <form action="{% url 'compras:formulario' %}" method="POST" class="fw-bold">
             {% csrf_token %}
-            {{ form | crispy }}
-            <button type = "submit" class = "btn btn-primary my-1" name="agregar">Agregar compra a orden de compra</button>
-            <button type = "submit" class = "btn btn-primary my-1" name="registrar">Registrar orden de compra</button>
+            {{ formCompra.numeroCompra | as_crispy_field }}
+            {{ formCompra.fechaCompra | as_crispy_field }}
+            {{ formCompra.iva | as_crispy_field }}
+            {{ formCompra.medioDePago | as_crispy_field }}
+            {{ formCompra.nombreProveedor | as_crispy_field }}
+            {{ formCompra.direccionProveedor | as_crispy_field }}
+
+            {{ formNumeroPrenda.numeroPrenda | as_crispy_field }}
+            {{ formCompraDetalle.nombrePrenda | as_crispy_field }}
+            {{ formCompraDetalle.descripcionPrenda | as_crispy_field }}
+            {{ formCompraDetalle.cantidadComprada | as_crispy_field }}
+            {{ formCompraDetalle.precioNetoUnitario | as_crispy_field }}
+            {{ formCompraDetalle.precioNetoTotal | as_crispy_field }}
+
+            {{ formCompra.precioBrutoTotal | as_crispy_field }}
+            <!--
+            {{ formCompra | crispy }}
+            {{ formCompraDetalle | crispy }}
+            -->
+            <button type = "submit" class = "btn btn-primary my-1" name="action" value="Agregar">Agregar compra a orden de compra</button>
+            <!--Al boton para registrar las compras en base de datos se le coloca formnovalidate para que no se tenga que tener datos ingresados en los inputs del formulario para poder guardar las compras en la base de datos-->
+            <button formnovalidate type = "submit" class = "btn btn-primary my-1" name="action" value="Registrar">Registrar orden de compra</button>
+            <button formnovalidate type = "submit" class = "btn btn-primary my-1" name="action" value="Eliminar">Eliminar orden de compra</button>
         </form>
     </div>
 
@@ -18,4 +38,20 @@
         {% include 'includes/tablaCompras.html' %}
     </div>
 </div>
+<script>
+    const cantidadComprada = document.getElementById('id_cantidadComprada')
+    const precioNetoUnitario = document.getElementById('id_precioNetoUnitario')
+    const precioNetoTotal = document.getElementById('id_precioNetoTotal')
+    const iva = document.getElementById('id_iva')
+    const precioBrutoTotal = document.getElementById('id_precioBrutoTotal')
+
+    function calcularPrecioBrutoTotal(){
+        precioNetoTotal.value = cantidadComprada.value * precioNetoUnitario.value
+        precioBrutoTotal.value = parseFloat(precioNetoTotal.value) + parseFloat(precioNetoTotal.value * iva.value/100)
+    }
+    //se le pone el evento a los inputs que causaran que cambien los otros inputs
+    //esto debe hacerse con javascript porque se hace por el lado del cliente, y lo de django se hace por lado del servidor
+    cantidadComprada.addEventListener('input', calcularPrecioBrutoTotal)
+    precioNetoUnitario.addEventListener('input', calcularPrecioBrutoTotal)
+</script>
 {% endblock %}

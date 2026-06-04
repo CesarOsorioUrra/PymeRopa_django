@@ -8,9 +8,25 @@
         <h1>Registrar venta</h1>
         <form action="{% url 'ventas:formulario' %}" method="POST" class="fw-bold">
             {% csrf_token %}
-            {{ form | crispy }}
-            <button type = "submit" class = "btn btn-primary my-1" name="agregar">Agregar venta a orden de venta</button>
-            <button type = "submit" class = "btn btn-primary my-1" name="registrar">Registrar orden de venta</button>
+            {{ formVenta.numeroVenta | as_crispy_field }}
+            {{ formVenta.fechaVenta | as_crispy_field }}
+            {{ formVenta.iva | as_crispy_field }}
+            {{ formVenta.medioDePago | as_crispy_field }}
+
+            {{ formVentaDetalle.numeroPrenda | as_crispy_field }}
+            {{ formVentaDetalle.cantidadVendida | as_crispy_field }}
+            {{ formVentaDetalle.precioNetoUnitario | as_crispy_field }}
+            {{ formVentaDetalle.precioNetoTotal | as_crispy_field }}
+
+            {{ formVenta.precioBrutoTotal | as_crispy_field }}
+            <!--
+            {{ formVenta | crispy }}
+            {{ formVentaDetalle | crispy }}
+            -->
+            <button type = "submit" class = "btn btn-primary my-1" name="action" value="Agregar">Agregar venta a orden de venta</button>
+            <!--Al boton para registrar las ventas en base de datos se le coloca formnovalidate para que no se tenga que tener datos ingresados en los inputs del formulario para poder guardar las ventas en la base de datos-->
+            <button formnovalidate type = "submit" class = "btn btn-primary my-1" name="action" value="Registrar">Registrar orden de venta</button>
+            <button formnovalidate type = "submit" class = "btn btn-primary my-1" name="action" value="Eliminar">Eliminar orden de venta</button>
         </form>
     </div>
 
@@ -18,4 +34,20 @@
         {% include 'includes/tablaVentas.html' %}
     </div>
 </div>
+<script>
+    const cantidadVendida = document.getElementById('id_cantidadVendida')
+    const precioNetoUnitario = document.getElementById('id_precioNetoUnitario')
+    const precioNetoTotal = document.getElementById('id_precioNetoTotal')
+    const iva = document.getElementById('id_iva')
+    const precioBrutoTotal = document.getElementById('id_precioBrutoTotal')
+
+    function calcularPrecioBrutoTotal(){
+        precioNetoTotal.value = cantidadVendida.value * precioNetoUnitario.value
+        precioBrutoTotal.value = parseFloat(precioNetoTotal.value) + parseFloat(precioNetoTotal.value * iva.value/100)
+    }
+    //se le pone el evento a los inputs que causaran que cambien los otros inputs
+    //esto debe hacerse con javascript porque se hace por el lado del cliente, y lo de django se hace por lado del servidor
+    cantidadVendida.addEventListener('input', calcularPrecioBrutoTotal)
+    precioNetoUnitario.addEventListener('input', calcularPrecioBrutoTotal)
+</script>
 {% endblock %}
