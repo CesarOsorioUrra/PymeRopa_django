@@ -21,7 +21,7 @@
                 {% endif %}
 
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Inicio</a>
+                    <a class="nav-link active" aria-current="page" href="{% url 'core:home' %}">Inicio</a>
                 </li>
 
                 {% if user.is_authenticated %}   
@@ -30,10 +30,10 @@
                             <a class="nav-link" href="{% url 'compras:index' %}">Compras</a>
                         </li>
                         <li class="nav-item"></li>
-                            <a class="nav-link" href="{% url 'admin:index' %}">Panel de administracion</a>
+                            <a class="nav-link" href="{% url 'core:administracion' %}">Panel de administracion</a>
                         </li>
                         <li class="nav-item"></li>
-                            <a class="nav-link" href="{% url 'aviso' %}">Publicar un aviso</a>
+                            <a class="nav-link" href="{% url 'core:aviso' %}">Publicar un aviso</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
@@ -50,11 +50,11 @@
             <ul class="navbar-nav ms-auto">
                 {% if not user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    <a class="nav-link" href="{% url 'core:login' %}">Login</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <form action="{% url 'logout' %}" method="POST">
+                    <form action="{% url 'core:logout' %}" method="POST">
                         {% csrf_token %}
                         <button class="nav-link" type="submit">Logout</button>
                     </form>

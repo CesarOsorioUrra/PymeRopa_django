@@ -2,29 +2,5 @@
 
 {% block content %}
 <h1>Inventario</h1>
-
-<table class="table table-striped">
-    <thead>
-            <tr>
-                <th scope="col">Codigo Prenda</th>
-                <th scope="col">Nombre Prenda</th>
-                <th scope="col">Descripcion Prenda</th>
-                <th scope="col">Precio Neto Unitario</th>
-                <th scope="col">Cantidad Total</th>
-            </tr>
-    </thead>
-    {% if inventario %}
-    <tbody>
-        {% for prenda in inventario %}
-            <tr>
-                <td>{{ prenda.numeroPrenda }}</td>
-                <td>{{ prenda.nombrePrenda }}</td>
-                <td>{{ prenda.descripcionPrenda }}</td>
-                <td>{{ prenda.precioNetoUnitario }}</td>
-                <td>{{ prenda.cantidad }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-    {% endif %}
-</table>
+{% include 'includes/tablaPrendas.html' %}
 {% endblock %}

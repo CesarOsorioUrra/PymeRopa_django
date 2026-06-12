@@ -1,0 +1,27 @@
+<div class="container">
+<div class="table-responsive">
+<table class="table table-striped my-3">
+    <thead>
+        <tr>
+            <th scope="col">Usuario</th>
+            <th scope="col">Aviso</th>
+            <th scope="col">Salario</th>
+            <th scope="col">Acciones</th>
+        </tr>
+    </thead>
+    {% if informacionesUsuario %}
+    <tbody>
+        {% for informacionUsuario in informacionesUsuario %}
+        <tr>
+            <td>{{ informacionUsuario.usuario }}</td>
+            <td>{{ informacionUsuario.aviso }}</td>
+            <td>{{ informacionUsuario.salario }}</td>
+            <td><a href="{% url 'core:administracion_informacionesUsuarioActualizarSalario' informacionUsuario.usuario.id %}">Actualizar salario</a></td>
+            <td><a href="{% url 'core:administracion_informacionesUsuarioEliminarAviso' informacionUsuario.usuario.id %}">Eliminar aviso</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% endif %}
+</table>
+</div>
+</div>

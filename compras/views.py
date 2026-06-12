@@ -4,34 +4,69 @@ from inventario.models import Prenda, PrendaMomentanea
 from django.contrib.auth.decorators import login_required
 from .forms import CompraForm, CompraDetalleForm, NumeroPrendaForm
 from django.contrib import messages
-from itertools import chain
+from django.contrib.auth.decorators import user_passes_test
+from django.views.generic import DeleteView
+from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
+@user_passes_test(lambda usuario: usuario.is_superuser)
 @login_required
 def index(request):
     if request.POST:
         action = request.POST.get("action") #para chequear en que botón se hizo click
         if action == 'Eliminar':
-            Compra.objects.filter(usuario = request.user).delete()
-            messages.success(request, "Sus compras han sido eliminadas")
-            return redirect("compras:index")
+            return redirect("compras:eliminarTodasCompras")
         
     compras = Compra.objects.filter(usuario = request.user) #Para que el empleado pueda ver solo sus compras
     comprasDetalle = CompraDetalle.objects.filter(numeroCompra__usuario = request.user) #Para mostrar solo los detalles de compra de las compras realizadas por el empleado actual
 
-    combined_list = list(chain(comprasDetalle))
-    combined_list.sort(key=lambda obj: str(obj))
-
-    context = {"compras" : compras, "data": combined_list}
+    context = {"compras" : compras, "comprasDetalle": comprasDetalle, "index": True}
     return render(request, "compras/index.html", context)
 
+@user_passes_test(lambda usuario: usuario.is_superuser)
+@login_required
+def eliminarTodasCompras(request):
+    if request.POST:
+        Compra.objects.filter(usuario = request.user).delete()
+        messages.success(request, "Sus compras han sido eliminadas")
+        return redirect("compras:index")
+    return render(request, "compras/eliminarTodasCompras.html")
+
+class CompraDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    model = Compra
+    success_url = reverse_lazy('compras:index')
+    success_message = "Compra eliminada correctamente."
+    pk_url_kwarg = 'numeroCompra' #se usa esto para que la url busque 'numeroCompra' en lugar de 'pk'
+    def get_queryset(self):
+        return Compra.objects.filter(usuario = self.request.user) #compras son realizadas por los super usuarios
+    def test_func(self): #esto se hace para ver si es super usuario
+        return self.request.user.is_superuser
+
+class CompraDetalleMomentaneaDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    model = CompraDetalleMomentanea
+    success_url = reverse_lazy('compras:formulario')
+    success_message = "Detalle de compra eliminado correctamente."
+    def get_queryset(self):
+        return CompraDetalleMomentanea.objects.filter(numeroCompra__usuario = self.request.user)
+    def test_func(self): #esto se hace para ver si es super usuario
+        return self.request.user.is_superuser #compras son realizadas por los super usuarios
+    #se sobreescribe el metodo get_object() para asi poder recibir dos pks desde la url, esto ya que CompraDetalleMomentanea tiene una pk compuesta por dos pks, que ademas son FKs de CompraMomentanea
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+        numeroCompra = self.kwargs.get('numeroCompra')
+        numeroPrenda = self.kwargs.get('numeroPrenda')
+        return get_object_or_404(queryset, numeroCompra = numeroCompra, numeroPrenda = numeroPrenda)
+        
+
+@user_passes_test(lambda usuario: usuario.is_superuser)
 @login_required
 def formulario(request):
     comprasMomentaneas = CompraMomentanea.objects.filter(usuario = request.user) #Para que el empleado pueda ver solo sus compras
     comprasDetalleMomentaneas = CompraDetalleMomentanea.objects.filter(numeroCompra__usuario = request.user) #Para mostrar solo los detalles de compra de las compras realizadas por el empleado actual
-
-    combined_list = list(chain(comprasDetalleMomentaneas))
-    combined_list.sort(key=lambda obj: str(obj))
 
     if request.POST:
         formCompra = CompraForm(request.POST)
@@ -42,6 +77,10 @@ def formulario(request):
 
         if action == 'Agregar':
             if formCompra.is_valid() and formCompraDetalle.is_valid() and formNumeroPrenda.is_valid():
+
+                #Realizacion de validaciones en el servidor para que ciertos valores no sean negativos o cero
+                validacionesForms(formCompra, formNumeroPrenda, formCompraDetalle, request)
+                
                 compraMomentanea = CompraMomentanea()
                 compraDetalleMomentanea = CompraDetalleMomentanea()
 
@@ -163,5 +202,28 @@ def formulario(request):
         formCompraDetalle = CompraDetalleForm()   
         formNumeroPrenda = NumeroPrendaForm()
 
-    context = {"formCompra" : formCompra, "formCompraDetalle": formCompraDetalle, "formNumeroPrenda": formNumeroPrenda, "compras" : comprasMomentaneas, "data": combined_list} #en context va la informacion que se envia a 'compras/formulario.html'
+    context = {"formCompra" : formCompra, "formCompraDetalle": formCompraDetalle, "formNumeroPrenda": formNumeroPrenda, "compras" : comprasMomentaneas, "comprasDetalle": comprasDetalleMomentaneas, "compraEnCurso": True} #en context va la informacion que se envia a 'compras/formulario.html'
     return render(request, 'compras/formulario.html', context)
+
+def validacionesForms(formCompra, formNumeroPrenda, formCompraDetalle, request):
+    if formCompra.cleaned_data.get("numeroCompra") <= 0:
+        messages.error(request, "El número de compra no puede ser un número negativo, ni cero.")
+        return redirect("compras:formulario") 
+    if formCompra.cleaned_data.get("iva") < 0:
+        messages.error(request, "El IVA no puede ser un número negativo.")
+        return redirect("compras:formulario") 
+    if formCompra.cleaned_data.get("precioBrutoTotal") < 0:
+        messages.error(request, "El precio bruto total no puede ser un número negativo.")
+        return redirect("compras:formulario") 
+    if formNumeroPrenda.cleaned_data.get("numeroPrenda") <= 0:
+        messages.error(request, "El número de prenda no puede ser un número negativo, ni cero.")
+        return redirect("compras:formulario")
+    if formCompraDetalle.cleaned_data.get("cantidadComprada") <= 0:
+        messages.error(request, "La cantidad comprada no puede ser un número negativo, ni cero.")
+        return redirect("compras:formulario") 
+    if formCompraDetalle.cleaned_data.get("precioNetoUnitario") < 0:
+        messages.error(request, "El precio neto unitario no puede ser un número negativo.")
+        return redirect("compras:formulario") 
+    if formCompraDetalle.cleaned_data.get("precioNetoTotal") < 0:
+        messages.error(request, "El precio neto total no puede ser un número negativo.")
+        return redirect("compras:formulario")

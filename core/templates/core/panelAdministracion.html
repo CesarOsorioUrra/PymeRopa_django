@@ -1,0 +1,40 @@
+{% extends 'layouts/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col col-md-8 mx-auto">
+        {% include 'includes/alertas.html' %}
+
+        {% if renderizarUsuarios %}
+            <h1>Administrar usuarios</h1>
+            {% include 'includes/tablaUsuarios.html' %}
+            <form action="{% url 'core:administracion_usuarios' %}" method="POST" class="bg-light p-3 rounded">
+                {% csrf_token %}
+                {{ formUsuario | crispy }}
+                <button type = "submit" class = "btn btn-primary my-1" name="action" value="CrearUsuario">Crear usuario</button>
+            </form>
+
+        {% elif renderizarPrendas %}
+            <h1>Administrar prendas</h1>
+            {% include 'includes/tablaPrendas.html' %}
+            
+        {% elif renderizarCompras %}
+            <h1>Administrar compras y sus detalles</h1>
+            {% include 'includes/tablaCompras.html' %}
+
+        {% elif renderizarVentas %}
+            <h1>Administrar ventas y sus detalles</h1>
+            {% include 'includes/tablaVentas.html' %}
+
+        {% elif renderizarInformacionesUsuario %}
+            <h1>Administrar informaciones de usuarios</h1>
+            {% include 'includes/tablaInformacionesUsuario.html' %}
+            <form action="{% url 'core:administracion_informacionesUsuario' %}" method="POST">
+                {% csrf_token %}
+                {{ formInformacionUsuario | crispy }}
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

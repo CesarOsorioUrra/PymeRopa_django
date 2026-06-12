@@ -12,7 +12,7 @@ class Compra(models.Model):
     medioDePago = models.CharField(max_length = 30)
     nombreProveedor = models.CharField(max_length = 100)
     direccionProveedor = models.CharField(max_length = 200)
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, default=1)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE)
 
     def __str__(self):
         return f"""
@@ -45,7 +45,7 @@ class CompraMomentanea(models.Model):
     medioDePago = models.CharField(max_length = 30)
     nombreProveedor = models.CharField(max_length = 100)
     direccionProveedor = models.CharField(max_length = 200)
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, default=1)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE)
 
 class CompraDetalleMomentanea(models.Model):
     numeroCompra = models.ForeignKey(CompraMomentanea, models.CASCADE)

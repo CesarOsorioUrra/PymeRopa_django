@@ -8,6 +8,6 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 @login_required
 def index(request):
-    inventario = Prenda.objects.all()
-    context = {"inventario": inventario}
+    prendas = Prenda.objects.all()
+    context = {"prendas": prendas}
     return render(request, "inventario/index.html", context)

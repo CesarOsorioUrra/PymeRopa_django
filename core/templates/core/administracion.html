@@ -1,0 +1,26 @@
+{% extends 'layouts/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col col-md-8 mx-auto">
+        {% include 'includes/alertas.html' %}
+        <h1>Administración</h1>
+        <h3>Seleccione una de las opciones.</h3>
+        <a href="{% url 'core:administracion_usuarios' %}" class="btn btn-primary">Usuarios</a>
+        <p>Usted podrá ver, crear, modificar, o eliminar usuarios.</p>
+
+        <a href="{% url 'core:administracion_prendas' %}" class="btn btn-primary">Prendas</a>
+        <p>Usted podrá ver, modificar, o eliminar las prendas.</p>
+
+        <a href="{% url 'core:administracion_compras' %}" class="btn btn-primary">Compras</a>
+        <p>Usted podrá ver y eliminar las compras y sus detalles.</p>
+
+        <a href="{% url 'core:administracion_ventas' %}" class="btn btn-primary">Ventas</a>
+        <p>Usted podrá ver y eliminar las ventas y sus detalles.</p>
+        
+        <a href="{% url 'core:administracion_informacionesUsuario' %}" class="btn btn-primary">Información Usuarios</a>
+        <p>Usted podrá ver las informaciones de los usuarios y modificar sus salarios.</p>
+    </div>
+</div>
+{% endblock %}

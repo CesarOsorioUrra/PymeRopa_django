@@ -21,7 +21,7 @@ class PrendaMomentanea(models.Model):
     descripcionPrenda = models.TextField(max_length = 200)
     cantidad = models.IntegerField(default=0)
     precioNetoUnitario = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, default=1) #Para que se pueda saber el usuario que esta comprando
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE) #Para que se pueda saber el usuario que esta comprando
 
     def __str__(self):
         return f"""

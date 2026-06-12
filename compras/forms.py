@@ -9,7 +9,7 @@ class CompraForm(forms.ModelForm):
                   ]
         mediosDePago = (('Efectivo', 'Efectivo'), ('Tarjeta de credito', 'Tarjeta de credito'), 
                 ('Tarjeta de debito', 'Tarjeta de debito'), ('Transferencia', 'Transferencia'))
-        widgets = {"medioDePago": forms.Select(choices=mediosDePago)}
+        widgets = {"medioDePago": forms.Select(choices=mediosDePago), "precioBrutoTotal": forms.NumberInput(attrs={'readonly': 'readonly'})}
         
 class CompraDetalleForm(forms.ModelForm):
     class Meta:
@@ -17,6 +17,7 @@ class CompraDetalleForm(forms.ModelForm):
         fields = ["nombrePrenda", "descripcionPrenda", "cantidadComprada",
                   "precioNetoUnitario", "precioNetoTotal"
                   ]
+        widgets = {"precioNetoTotal": forms.NumberInput(attrs={'readonly': 'readonly'})}
 
 class NumeroPrendaForm(forms.Form):
     numeroPrenda = forms.IntegerField(widget=forms.NumberInput())

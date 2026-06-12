@@ -1,0 +1,33 @@
+<div class="container">
+<div class="table-responsive">
+<table class="table table-striped my-3">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">¿Es administrador?</th>
+            <th scope="col">Nombre de usuario</th>
+            <th scope="col">Email</th>
+            <th scope="col">Fecha de registro</th>
+            <th scope="col">Acciones</th>
+        </tr>
+    </thead>
+    {% if usuarios %}
+    <tbody>
+        {% for usuario in usuarios %}
+        <tr>
+            <td>{{ usuario.id }}</td>
+            <td>{{ usuario.is_superuser }}</td>
+            <td>{{ usuario.username }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>{{ usuario.date_joined }}</td>
+            <td>
+                <a href="{% url 'core:administracion_usuariosActualizar' usuario.id %}">Actualizar</a>
+                <a href="{% url 'core:administracion_usuariosEliminar' usuario.id %}">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% endif %}
+</table>
+</div>
+</div>

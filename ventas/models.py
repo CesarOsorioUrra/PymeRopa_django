@@ -10,7 +10,7 @@ class Venta(models.Model):
     iva = models.IntegerField(default=19)
     precioBrutoTotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     medioDePago = models.CharField(max_length = 30)
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, default=1)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE)
 
     def __str__(self):
         return f"""
@@ -38,7 +38,7 @@ class VentaMomentanea(models.Model):
     iva = models.IntegerField(default=19)
     precioBrutoTotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     medioDePago = models.CharField(max_length = 30)
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, default=1)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE)
 
     def __str__(self):
         return f"""

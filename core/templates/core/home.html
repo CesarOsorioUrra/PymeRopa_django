@@ -14,6 +14,10 @@
             {% else %}
                 <p>Usted tiene permisos de empleado, lo que implica que puede acceder a la página para registrar ventas, y a la página para ver el inventario. Haga click en "Logout" para cerrar su sesión.</p>
             {% endif %}
+            <p>Su salario es: {{ salario }} pesos</p>
+            {% if aviso %}
+                <p>Aviso del administrador: {{ aviso }}</p>
+            {% endif %}
         {% else %}
             <h1>Bienvenid@</h1>
             <p>Esta es la página de inicio de la pyme de ropa. Para poder acceder a las funcionalidades de la página
@@ -25,7 +29,7 @@
             </p>
             <p>Existe dos tipos de usuarios que pueden acceder a esta plataforma, los super usuarios (administradores), y los usuarios que no son parte del staff (empleados).
                  El super usuario puede acceder a la página para registrar compras, ver el inventario, enviar avisos a otros usuarios, y también puede acceder a la página de administración de django para crear nuevos usuarios.
-                 Si se crea un usuario que no sea parte del "staff", entonces ese usuario será un empleado, el cual puede acceder a la página para registrar ventas y ver el inventario. No puede acceder a la página para registrar compras, no puede acceder a la página de dministración, y tampoco puede publicar avisos.
+                 Si se crea un usuario que no sea parte del "staff", entonces ese usuario será un empleado, el cual puede acceder a la página para registrar ventas y ver el inventario. No puede acceder a la página para registrar compras, no puede acceder a la página de administración, y tampoco puede publicar avisos.
             </p>
             <p>
                 <img src="{% static 'core/img/ropa.png' %}" alt="Imagen ropa" class="imagen-home">

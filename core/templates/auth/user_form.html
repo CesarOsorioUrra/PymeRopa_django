@@ -1,0 +1,16 @@
+{% extends 'layouts/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col col-md-4 mx-auto">
+        {% include 'includes/alertas.html' %}
+        <h1>Actualizar usuario</h1>
+        <form method="POST" class="bg-light p-3 rounded">
+            {% csrf_token %}
+            {{ form | crispy }}
+            <button type="submit" class="btn btn-primary">Actualizar usuario</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

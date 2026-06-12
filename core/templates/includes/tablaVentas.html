@@ -1,48 +1,77 @@
 <div class="container">
+
 <div class="table-responsive">
 <table class="table table-striped my-3">
-{% if ventas %}
     <thead>
-            <tr>
-                <th scope="col">Numero Venta</th>
-                <th scope="col">Fecha Venta</th>
-                <th scope="col">Iva</th>
-                <th scope="col">Precio Bruto Total</th>
-                <th scope="col">Medio De Pago</th>
-
-                <th scope="col">Numero Venta</th>
-                <th scope="col">Numero Prenda</th>
-                <th scope="col">Cantidad vendida</th>
-                <th scope="col">Precio neto unitario</th>
-                <th scope="col">Precio neto total</th>
-            </tr>
+        <tr>
+            <th scope="col">Numero Venta</th>
+            <th scope="col">Fecha Venta</th>
+            <th scope="col">Iva</th>
+            <th scope="col">Precio Bruto Total</th>
+            <th scope="col">Medio De Pago</th>
+            {% if index or administracion %}
+                <th scope="col">Acciones</th>
+            {% endif %}
+        </tr>
     </thead>
+    {% if ventas %}
     <tbody>
-        {% regroup data by numeroVenta as ventas %}
-        <!--<p>{{ventas}}</p>--> <!--ESTA LINEA SE USO PARA PRUEBAS DEL REGROUP-->
         {% for venta in ventas %}
-            {% for ventaDetalle in venta.list %}
-                <tr>
-                    {% if forloop.first %}
-                    <td rowspan="{{ venta.list|length }}">{{ venta.grouper.numeroVenta }}</td>
-                    <td rowspan="{{ venta.list|length }}">{{ venta.grouper.fechaVenta }}</td>
-                    <td rowspan="{{ venta.list|length }}">{{ venta.grouper.iva }}</td>
-                    <td rowspan="{{ venta.list|length }}">{{ venta.grouper.precioBrutoTotal }}</td>
-                    <td rowspan="{{ venta.list|length }}">{{ venta.grouper.medioDePago }}</td>
-                    {% endif %}
-
-                    <td>{{ ventaDetalle.numeroVenta.numeroVenta }}</td>
-                    <td>{{ ventaDetalle.numeroPrenda.numeroPrenda }}</td>
-                    <td>{{ ventaDetalle.cantidadVendida }}</td>
-                    <td>{{ ventaDetalle.precioNetoUnitario }}</td>
-                    <td>{{ ventaDetalle.precioNetoTotal }}</td>
-                </tr>
-            {% endfor %}
+            <tr>
+                <td>{{ venta.numeroVenta }}</td>
+                <td>{{ venta.fechaVenta }}</td>
+                <td>{{ venta.iva }}</td>
+                <td>{{ venta.precioBrutoTotal }}</td>
+                <td>{{ venta.medioDePago }}</td>
+                {% if index %}
+                    <td>
+                        <a href="{% url 'ventas:indexEliminarUnaVenta' venta.numeroVenta %}">Eliminar</a>
+                    </td>
+                {% elif administracion %}
+                    <td>
+                        <a href="{% url 'core:administracion_ventasEliminar' venta.numeroVenta %}">Eliminar</a>
+                    </td>                
+                {% endif %}
+            </tr>       
         {% endfor %}
     </tbody>
-{% else %}
-<h3>No hay ventas</h3>
-{% endif %}
+    {% endif %}
 </table>
 </div>
+
+<div class="table-responsive">
+<table class="table table-striped my-3">
+    <thead>
+        <tr>
+            <th scope="col">Numero Venta</th>
+            <th scope="col">Numero Prenda</th>
+            <th scope="col">Cantidad vendida</th>
+            <th scope="col">Precio neto unitario</th>
+            <th scope="col">Precio neto total</th>
+            {% if ventaEnCurso %}
+                <th scope="col">Acciones</th>
+            {% endif %}
+        </tr>
+    </thead>
+    {% if ventasDetalle %}
+    <tbody>
+        <tr>   
+            {% for ventaDetalle in ventasDetalle %}
+                <td>{{ ventaDetalle.numeroVenta.numeroVenta }}</td>
+                <td>{{ ventaDetalle.numeroPrenda.numeroPrenda }}</td>
+                <td>{{ ventaDetalle.cantidadVendida }}</td>
+                <td>{{ ventaDetalle.precioNetoUnitario }}</td>
+                <td>{{ ventaDetalle.precioNetoTotal }}</td>
+                {% if ventaEnCurso %}
+                    <td>
+                        <a href="{% url 'ventas:eliminarUnaVentaDetalleMomentanea' ventaDetalle.numeroVenta.numeroVenta ventaDetalle.numeroPrenda.numeroPrenda %}">Eliminar</a>
+                    </td>
+                {% endif %}
+            {% endfor %}
+        </tr>       
+    </tbody>
+    {% endif %}
+</table>
+</div>
+
 </div>
