@@ -175,5 +175,34 @@
             }
         }
     })
+
+    //codigo para que al seleccionar una prenda se rellene automaticamente el input de precioNetoUnitario con el precio de la prenda
+    document.addEventListener('DOMContentLoaded', function(){
+        const prendaSeleccionada = document.getElementById('id_numeroPrenda')
+        if(prendaSeleccionada){
+            prendaSeleccionada.addEventListener('change', function() {
+                const numeroPrenda = this.value
+                if(!numeroPrenda){ //si no se selecciona ninguna prenda, es decir se selecciona el placeholder "--------"
+                    precioNetoUnitario.value = 0
+                    return null
+                }
+                fetch(`obtenerPrecioPrenda/${numeroPrenda}/`)
+                .then(response => {
+                    if(!response.ok){
+                        throw new Error('Ha ocurrido un error con la respueta desde la api')
+                    }
+                    return response.json()
+                })
+                .then(data => {
+                    if(data.precioNetoUnitario != undefined){
+                        precioNetoUnitario.value = data.precioNetoUnitario
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al obtener los datos: ", error)
+                })
+            })
+        }
+    })
 </script>
 {% endblock %}

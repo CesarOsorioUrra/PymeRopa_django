@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 
 # Create your views here.
 @user_passes_test(lambda usuario: not usuario.is_superuser)
@@ -172,3 +173,10 @@ def formulario(request):
 
     context = {"formVenta" : formVenta, "formVentaDetalle": formVentaDetalle, "ventas" : ventasMomentaneas, "ventasDetalle": ventasDetalleMomentaneas, "ventaEnCurso": True} #en context va la informacion que se envia a 'ventas/formulario.html'
     return render(request, 'ventas/formulario.html', context)
+
+@user_passes_test(lambda usuario: not usuario.is_superuser)
+@login_required
+def obtenerPrecioPrenda(request, numeroPrenda):
+    prenda = get_object_or_404(Prenda, numeroPrenda=numeroPrenda)
+    data = {'precioNetoUnitario': prenda.precioNetoUnitario}
+    return JsonResponse(data)

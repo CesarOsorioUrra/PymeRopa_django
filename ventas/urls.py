@@ -9,4 +9,5 @@ urlpatterns = [
     path("<int:numeroVenta>/eliminar/", views.VentaDeleteView.as_view(), name="indexEliminarUnaVenta"),
     path("<int:numeroVenta>/<int:numeroPrenda>/momentanea/eliminar/", views.VentaDetalleMomentaneaDeleteView.as_view(), name="eliminarUnaVentaDetalleMomentanea"),
     path("eliminarTodasVentas/", views.eliminarTodasVentas, name="eliminarTodasVentas"),
+    path("formulario/obtenerPrecioPrenda/<int:numeroPrenda>/", views.obtenerPrecioPrenda, name="obtenerPrecioPrenda")
 ]
