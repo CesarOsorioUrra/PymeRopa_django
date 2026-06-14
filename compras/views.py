@@ -79,7 +79,27 @@ def formulario(request):
             if formCompra.is_valid() and formCompraDetalle.is_valid() and formNumeroPrenda.is_valid():
 
                 #Realizacion de validaciones en el servidor para que ciertos valores no sean negativos o cero
-                validacionesForms(formCompra, formNumeroPrenda, formCompraDetalle, request)
+                if formCompra.cleaned_data.get("numeroCompra") <= 0:
+                    messages.error(request, "El número de compra no puede ser un número negativo, ni cero.")
+                    return redirect("compras:formulario") 
+                if formCompra.cleaned_data.get("iva") < 0:
+                    messages.error(request, "El IVA no puede ser un número negativo.")
+                    return redirect("compras:formulario") 
+                if formCompra.cleaned_data.get("precioBrutoTotal") < 0:
+                    messages.error(request, "El precio bruto total no puede ser un número negativo.")
+                    return redirect("compras:formulario") 
+                if formNumeroPrenda.cleaned_data.get("numeroPrenda") <= 0:
+                    messages.error(request, "El número de prenda no puede ser un número negativo, ni cero.")
+                    return redirect("compras:formulario")
+                if formCompraDetalle.cleaned_data.get("cantidadComprada") <= 0:
+                    messages.error(request, "La cantidad comprada no puede ser un número negativo, ni cero.")
+                    return redirect("compras:formulario") 
+                if formCompraDetalle.cleaned_data.get("precioNetoUnitario") < 0:
+                    messages.error(request, "El precio neto unitario no puede ser un número negativo.")
+                    return redirect("compras:formulario") 
+                if formCompraDetalle.cleaned_data.get("precioNetoTotal") < 0:
+                    messages.error(request, "El precio neto total no puede ser un número negativo.")
+                    return redirect("compras:formulario")
                 
                 compraMomentanea = CompraMomentanea()
                 compraDetalleMomentanea = CompraDetalleMomentanea()
@@ -204,26 +224,3 @@ def formulario(request):
 
     context = {"formCompra" : formCompra, "formCompraDetalle": formCompraDetalle, "formNumeroPrenda": formNumeroPrenda, "compras" : comprasMomentaneas, "comprasDetalle": comprasDetalleMomentaneas, "compraEnCurso": True} #en context va la informacion que se envia a 'compras/formulario.html'
     return render(request, 'compras/formulario.html', context)
-
-def validacionesForms(formCompra, formNumeroPrenda, formCompraDetalle, request):
-    if formCompra.cleaned_data.get("numeroCompra") <= 0:
-        messages.error(request, "El número de compra no puede ser un número negativo, ni cero.")
-        return redirect("compras:formulario") 
-    if formCompra.cleaned_data.get("iva") < 0:
-        messages.error(request, "El IVA no puede ser un número negativo.")
-        return redirect("compras:formulario") 
-    if formCompra.cleaned_data.get("precioBrutoTotal") < 0:
-        messages.error(request, "El precio bruto total no puede ser un número negativo.")
-        return redirect("compras:formulario") 
-    if formNumeroPrenda.cleaned_data.get("numeroPrenda") <= 0:
-        messages.error(request, "El número de prenda no puede ser un número negativo, ni cero.")
-        return redirect("compras:formulario")
-    if formCompraDetalle.cleaned_data.get("cantidadComprada") <= 0:
-        messages.error(request, "La cantidad comprada no puede ser un número negativo, ni cero.")
-        return redirect("compras:formulario") 
-    if formCompraDetalle.cleaned_data.get("precioNetoUnitario") < 0:
-        messages.error(request, "El precio neto unitario no puede ser un número negativo.")
-        return redirect("compras:formulario") 
-    if formCompraDetalle.cleaned_data.get("precioNetoTotal") < 0:
-        messages.error(request, "El precio neto total no puede ser un número negativo.")
-        return redirect("compras:formulario")

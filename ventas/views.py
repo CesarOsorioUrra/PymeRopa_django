@@ -77,7 +77,24 @@ def formulario(request):
             if formVenta.is_valid() and formVentaDetalle.is_valid():
 
                 #Realizacion de validaciones en el servidor para que ciertos valores no sean negativos o cero
-                validacionesForms(formVenta, formVentaDetalle, request)
+                if formVenta.cleaned_data.get("numeroVenta") <= 0:
+                    messages.error(request, "El numero de venta no puede ser un número negativo, ni cero.")
+                    return redirect("ventas:formulario") 
+                if formVentaDetalle.cleaned_data.get("numeroPrenda").numeroPrenda <= 0:
+                    messages.error(request, "El numero de prenda no puede ser un número negativo, ni cero.")
+                    return redirect("ventas:formulario") 
+                if formVentaDetalle.cleaned_data.get("cantidadVendida") <= 0:
+                    messages.error(request, "La cantidad vendida no puede ser un número negativo, ni cero.")
+                    return redirect("ventas:formulario") 
+                if formVentaDetalle.cleaned_data.get("precioNetoUnitario") < 0:
+                    messages.error(request, "El precio neto unitario no puede ser un número negativo.")
+                    return redirect("ventas:formulario") 
+                if formVentaDetalle.cleaned_data.get("precioNetoTotal") < 0:
+                    messages.error(request, "El precio neto total no puede ser un número negativo.")
+                    return redirect("ventas:formulario") 
+                if formVenta.cleaned_data.get("precioBrutoTotal") < 0:
+                    messages.error(request, "El precio bruto total no puede ser un número negativo.")
+                    return redirect("ventas:formulario") 
                 
                 numeroPrenda = formVentaDetalle.cleaned_data.get("numeroPrenda").numeroPrenda
                 cantidadVendida = formVentaDetalle.cleaned_data.get("cantidadVendida")
@@ -155,23 +172,3 @@ def formulario(request):
 
     context = {"formVenta" : formVenta, "formVentaDetalle": formVentaDetalle, "ventas" : ventasMomentaneas, "ventasDetalle": ventasDetalleMomentaneas, "ventaEnCurso": True} #en context va la informacion que se envia a 'ventas/formulario.html'
     return render(request, 'ventas/formulario.html', context)
-
-def validacionesForms(formVenta, formVentaDetalle, request):
-    if formVenta.cleaned_data.get("numeroVenta") <= 0:
-        messages.error(request, "El numero de venta no puede ser un número negativo, ni cero.")
-        return redirect("ventas:formulario") 
-    if formVentaDetalle.cleaned_data.get("numeroPrenda").numeroPrenda <= 0:
-        messages.error(request, "El numero de prenda no puede ser un número negativo, ni cero.")
-        return redirect("ventas:formulario") 
-    if formVentaDetalle.cleaned_data.get("cantidadVendida") <= 0:
-        messages.error(request, "La cantidad vendida no puede ser un número negativo, ni cero.")
-        return redirect("ventas:formulario") 
-    if formVentaDetalle.cleaned_data.get("precioNetoUnitario") < 0:
-        messages.error(request, "El precio neto unitario no puede ser un número negativo.")
-        return redirect("ventas:formulario") 
-    if formVentaDetalle.cleaned_data.get("precioNetoTotal") < 0:
-        messages.error(request, "El precio neto total no puede ser un número negativo.")
-        return redirect("ventas:formulario") 
-    if formVenta.cleaned_data.get("precioBrutoTotal") < 0:
-        messages.error(request, "El precio bruto total no puede ser un número negativo.")
-        return redirect("ventas:formulario") 

@@ -2,13 +2,14 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from inventario.models import Prenda, PrendaMomentanea
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 class Compra(models.Model):
-    numeroCompra = models.IntegerField(primary_key=True)
+    numeroCompra = models.IntegerField(primary_key=True, validators = [MinValueValidator(1)])
     fechaCompra = models.DateTimeField(default=timezone.now) #para que fecha sea la actual
-    iva = models.IntegerField(default=19)
-    precioBrutoTotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    iva = models.IntegerField(default=19, validators = [MinValueValidator(0), MaxValueValidator(100)])
+    precioBrutoTotal = models.DecimalField(max_digits=12, decimal_places=2, default=0, validators = [MinValueValidator(0)])
     medioDePago = models.CharField(max_length = 30)
     nombreProveedor = models.CharField(max_length = 100)
     direccionProveedor = models.CharField(max_length = 200)
@@ -21,13 +22,13 @@ class Compra(models.Model):
         """
 
 class CompraDetalle(models.Model):
-    numeroCompra = models.ForeignKey(Compra, models.CASCADE)
-    numeroPrenda = models.ForeignKey(Prenda, models.CASCADE)
+    numeroCompra = models.ForeignKey(Compra, models.CASCADE, validators = [MinValueValidator(1)])
+    numeroPrenda = models.ForeignKey(Prenda, models.CASCADE, validators = [MinValueValidator(1)])
     nombrePrenda = models.CharField(max_length = 100)
     descripcionPrenda = models.TextField(max_length = 200)
-    cantidadComprada = models.IntegerField(default = 0)
-    precioNetoUnitario = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    precioNetoTotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    cantidadComprada = models.IntegerField(default = 0, validators = [MinValueValidator(1)])
+    precioNetoUnitario = models.DecimalField(max_digits=12, decimal_places=2, default=0, validators = [MinValueValidator(0)])
+    precioNetoTotal = models.DecimalField(max_digits=12, decimal_places=2, default=0, validators = [MinValueValidator(0)])
 
     pk = models.CompositePrimaryKey('numeroCompra', 'numeroPrenda')
 

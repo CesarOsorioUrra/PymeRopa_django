@@ -6,7 +6,7 @@
     <div class="col col-md-2 mx-auto">
         {% include 'includes/alertas.html' %}
         <h1>Registrar compra</h1>
-        <form action="{% url 'compras:formulario' %}" method="POST" class="fw-bold">
+        <form action="{% url 'compras:formulario' %}" method="POST" class="fw-bold" id="id_formCompras">
             {% csrf_token %}
             {{ formCompra.numeroCompra | as_crispy_field }}
             {{ formCompra.fechaCompra | as_crispy_field }}
@@ -29,8 +29,8 @@
             -->
             <button type = "submit" class = "btn btn-primary my-1" name="action" value="Agregar">Agregar compra a orden de compra</button>
             <!--Al boton para registrar las compras en base de datos se le coloca formnovalidate para que no se tenga que tener datos ingresados en los inputs del formulario para poder guardar las compras en la base de datos-->
-            <button formnovalidate type = "submit" class = "btn btn-primary my-1" name="action" value="Registrar">Registrar orden de compra</button>
-            <button formnovalidate type = "submit" class = "btn btn-primary my-1" name="action" value="Eliminar">Eliminar orden de compra</button>
+            <button formnovalidate type = "submit" class = "btn btn-primary my-1 excluir-de-validacion" name="action" value="Registrar">Registrar orden de compra</button>
+            <button formnovalidate type = "submit" class = "btn btn-primary my-1 excluir-de-validacion" name="action" value="Eliminar">Eliminar orden de compra</button>
         </form>
     </div>
 
@@ -39,6 +39,25 @@
     </div>
 </div>
 <script>
+    //funcion para ver si se puede convertir el texto ingresado en un int
+    function tryParseInt(text) {
+        if (/^[-+]?\d+$/.test(text)) {
+            return true;
+        }
+        return false;
+    }
+    //funcion para ver si se puede convertir el texto ingresado en un float
+    function tryParseFloat(text) {
+        if (typeof text !== 'string' || text.trim() === ''){
+            return false
+        } 
+        const num = Number(text);
+        return !isNaN(num);
+    }
+    
+    const numeroCompra = document.getElementById('id_numeroCompra')
+    const fechaCompra = document.getElementById('id_fechaCompra')
+    const numeroPrenda = document.getElementById('id_numeroPrenda')
     const cantidadComprada = document.getElementById('id_cantidadComprada')
     const precioNetoUnitario = document.getElementById('id_precioNetoUnitario')
     const precioNetoTotal = document.getElementById('id_precioNetoTotal')
@@ -48,10 +67,131 @@
     function calcularPrecioBrutoTotal(){
         precioNetoTotal.value = cantidadComprada.value * precioNetoUnitario.value
         precioBrutoTotal.value = parseFloat(precioNetoTotal.value) + parseFloat(precioNetoTotal.value * iva.value/100)
-    }
+    } 
     //se le pone el evento a los inputs que causaran que cambien los otros inputs
     //esto debe hacerse con javascript porque se hace por el lado del cliente, y lo de django se hace por lado del servidor
     cantidadComprada.addEventListener('input', calcularPrecioBrutoTotal)
     precioNetoUnitario.addEventListener('input', calcularPrecioBrutoTotal)
+
+    fechaCompra.readOnly = true
+    precioNetoTotal.readOnly = true
+    precioBrutoTotal.readOnly = true
+
+    //debe cambiarse el tipo de scrolling ya que o sino no se renderizan los popups de validacion de inputs...
+    //...si para mostrar estos inputs se necesita hacer scrolling. Esto es un bug de Chrome.
+    document.documentElement.style.scrollBehavior = 'auto' 
+
+    numeroCompra.min = '1'
+    numeroPrenda.min = '1'
+    cantidadComprada.min = '1'
+    iva.min = '0'
+    iva.max = '100'
+    precioNetoUnitario.min = '0'
+    precioNetoTotal.min = '0'
+    precioBrutoTotal.min = '0'
+
+    const formCompras = document.getElementById('id_formCompras')
+
+    formCompras.addEventListener('input', function(event) {
+        //se usa para agregar el evento solo a los inputs
+        if(event.target.tagName === 'INPUT') {
+            event.target.setCustomValidity('') //para reiniciar el estado del mensaje de error, y para que no se quede pegado todo el tiempo mostrndo el mismo mensaje de error aunque se ponga un valor correcto
+        }
+    })
+
+    formCompras.addEventListener('submit', function(event){
+        //se exluye de la validacion frontend del formulario a los botones tipo "submit" que tengan 'excluir-de-validacion' en su class
+        if(event.submitter && event.submitter.matches('.excluir-de-validacion')) {
+            return null
+        }
+
+        if(!tryParseInt(numeroCompra.value)){
+            event.preventDefault()
+            numeroCompra.setCustomValidity("numeroCompra debe ser un numero entero.")
+            numeroCompra.reportValidity()
+        }else{
+            if (parseInt(numeroCompra.value) <= 0){
+                event.preventDefault()
+                numeroCompra.setCustomValidity('numeroCompra no puede ser negativo o 0')
+                numeroCompra.reportValidity()
+            }
+        }
+
+        if(!tryParseInt(numeroPrenda.value)){
+            event.preventDefault()
+            numeroPrenda.setCustomValidity("numeroPrenda debe ser un numero entero.")
+            numeroPrenda.reportValidity()
+        }else{
+            if (parseInt(numeroPrenda.value) <= 0){
+                event.preventDefault()
+                numeroPrenda.setCustomValidity('numeroPrenda no puede ser negativo o 0')
+                numeroPrenda.reportValidity()
+            }
+        }
+
+        if(!tryParseInt(cantidadComprada.value)){
+            event.preventDefault()
+            cantidadComprada.setCustomValidity("cantidadComprada debe ser un numero entero.")
+            cantidadComprada.reportValidity()
+        }else{
+            if (parseInt(cantidadComprada.value) <= 0){
+                event.preventDefault()
+                cantidadComprada.setCustomValidity('cantidadComprada no puede ser negativo ni 0')
+                cantidadComprada.reportValidity()
+            }
+        }
+
+        if(!tryParseInt(iva.value)){
+            event.preventDefault()
+            iva.setCustomValidity("iva debe ser un numero entero (que representa un porcentaje).")
+            iva.reportValidity()
+        }else{
+            if (parseInt(iva.value) < 0){
+                event.preventDefault()
+                iva.setCustomValidity('iva no puede ser negativo')
+                iva.reportValidity()
+            }else if(parseInt(iva.value) > 100){
+                event.preventDefault()
+                iva.setCustomValidity('iva no puede ser mayor a 100')
+                iva.reportValidity()
+            }
+        }
+
+        if(!tryParseFloat(precioNetoUnitario.value)){
+            event.preventDefault()
+            precioNetoUnitario.setCustomValidity("precioNetoUnitario debe ser un numero decimal.")
+            precioNetoUnitario.reportValidity()
+        }else{
+            if (parseFloat(precioNetoUnitario.value) < 0){
+                event.preventDefault()
+                precioNetoUnitario.setCustomValidity('precioNetoUnitario no puede ser negativo')
+                precioNetoUnitario.reportValidity()
+            }
+        }
+
+        if(!tryParseFloat(precioNetoTotal.value)){
+            event.preventDefault()
+            precioNetoTotal.setCustomValidity("precioNetoTotal debe ser un numero decimal.")
+            precioNetoTotal.reportValidity()
+        }else{
+            if (parseFloat(precioNetoTotal.value) < 0){
+                event.preventDefault()
+                precioNetoTotal.setCustomValidity('precioNetoTotal no puede ser negativo')
+                precioNetoTotal.reportValidity()
+            }
+        }
+
+        if(!tryParseFloat(precioBrutoTotal.value)){
+            event.preventDefault()
+            precioBrutoTotal.setCustomValidity("precioBrutoTotal debe ser un numero decimal.")
+            precioBrutoTotal.reportValidity()
+        }else{
+            if (parseFloat(precioBrutoTotal.value) < 0){
+                event.preventDefault()
+                precioBrutoTotal.setCustomValidity('precioBrutoTotal no puede ser negativo')
+                precioBrutoTotal.reportValidity()
+            }
+        }
+    })
 </script>
 {% endblock %}

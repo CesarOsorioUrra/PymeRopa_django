@@ -22,3 +22,8 @@
     radial-gradient(100% 148.07% at 0% 0%, #fff500 0%, #51d500 100%);
   background-blend-mode: screen, color-dodge, overlay, difference, normal;
 }
+input:read-only:not([type="checkbox"]) {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}

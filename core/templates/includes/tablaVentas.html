@@ -15,26 +15,26 @@
         </tr>
     </thead>
     {% if ventas %}
-    <tbody>
-        {% for venta in ventas %}
-            <tr>
-                <td>{{ venta.numeroVenta }}</td>
-                <td>{{ venta.fechaVenta }}</td>
-                <td>{{ venta.iva }}</td>
-                <td>{{ venta.precioBrutoTotal }}</td>
-                <td>{{ venta.medioDePago }}</td>
-                {% if index %}
-                    <td>
-                        <a href="{% url 'ventas:indexEliminarUnaVenta' venta.numeroVenta %}">Eliminar</a>
-                    </td>
-                {% elif administracion %}
-                    <td>
-                        <a href="{% url 'core:administracion_ventasEliminar' venta.numeroVenta %}">Eliminar</a>
-                    </td>                
-                {% endif %}
-            </tr>       
-        {% endfor %}
-    </tbody>
+        <tbody>
+            {% for venta in ventas %}
+                <tr>
+                    <td>{{ venta.numeroVenta }}</td>
+                    <td>{{ venta.fechaVenta }}</td>
+                    <td>{{ venta.iva }}</td>
+                    <td>{{ venta.precioBrutoTotal }}</td>
+                    <td>{{ venta.medioDePago }}</td>
+                    {% if index %}
+                        <td>
+                            <a href="{% url 'ventas:indexEliminarUnaVenta' venta.numeroVenta %}">Eliminar</a>
+                        </td>
+                    {% elif administracion %}
+                        <td>
+                            <a href="{% url 'core:administracion_ventasEliminar' venta.numeroVenta %}">Eliminar</a>
+                        </td>                
+                    {% endif %}
+                </tr>       
+            {% endfor %}
+        </tbody>
     {% endif %}
 </table>
 </div>
@@ -54,22 +54,22 @@
         </tr>
     </thead>
     {% if ventasDetalle %}
-    <tbody>
-        <tr>   
+        <tbody> 
             {% for ventaDetalle in ventasDetalle %}
-                <td>{{ ventaDetalle.numeroVenta.numeroVenta }}</td>
-                <td>{{ ventaDetalle.numeroPrenda.numeroPrenda }}</td>
-                <td>{{ ventaDetalle.cantidadVendida }}</td>
-                <td>{{ ventaDetalle.precioNetoUnitario }}</td>
-                <td>{{ ventaDetalle.precioNetoTotal }}</td>
-                {% if ventaEnCurso %}
-                    <td>
-                        <a href="{% url 'ventas:eliminarUnaVentaDetalleMomentanea' ventaDetalle.numeroVenta.numeroVenta ventaDetalle.numeroPrenda.numeroPrenda %}">Eliminar</a>
-                    </td>
-                {% endif %}
-            {% endfor %}
-        </tr>       
-    </tbody>
+                <tr>  
+                    <td>{{ ventaDetalle.numeroVenta.numeroVenta }}</td>
+                    <td>{{ ventaDetalle.numeroPrenda.numeroPrenda }}</td>
+                    <td>{{ ventaDetalle.cantidadVendida }}</td>
+                    <td>{{ ventaDetalle.precioNetoUnitario }}</td>
+                    <td>{{ ventaDetalle.precioNetoTotal }}</td>
+                    {% if ventaEnCurso %}
+                        <td>
+                            <a href="{% url 'ventas:eliminarUnaVentaDetalleMomentanea' ventaDetalle.numeroVenta.numeroVenta ventaDetalle.numeroPrenda.numeroPrenda %}">Eliminar</a>
+                        </td>
+                    {% endif %}
+                </tr>  
+            {% endfor %} 
+        </tbody>
     {% endif %}
 </table>
 </div>

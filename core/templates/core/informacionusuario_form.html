@@ -6,11 +6,47 @@
     <div class="col col-md-4 mx-auto">
         {% include 'includes/alertas.html' %}
         <h1>Actualizar salario</h1>
-        <form method="POST">
+        <form method="POST" id="id_formInformacionUsuario">
             {% csrf_token %}
             {{ form | crispy }}
             <button type="submit" class="btn btn-primary">Actualizar salario</button>
         </form>
     </div>
 </div>
+
+<script>
+    function tryParseInt(text) {
+        if (/^[-+]?\d+$/.test(text)) {
+            return true;
+        }
+        return false;
+    }
+    const formInformacionUsuario = document.getElementById('id_formInformacionUsuario')
+    const salario = document.getElementById('id_salario')
+    salario.min = '0'
+    salario.max = '9999999'
+
+    salario.addEventListener('input', () => {
+        salario.setCustomValidity('') //para reiniciar el estado del mensaje de error, y para que no se quede pegado todo el tiempo mostrndo el mismo mensaje de error aunque se ponga un valor correcto
+    })
+
+    formInformacionUsuario.addEventListener('submit', function(event){
+        if(!tryParseInt(salario.value)){
+            event.preventDefault()
+            salario.setCustomValidity("Salario debe ser un numero entero.")
+            salario.reportValidity()
+        }else{
+            if (parseInt(salario.value) < 0){
+                event.preventDefault()
+                salario.setCustomValidity('Salario no puede ser negativo') //para registrar el mensaje que se mostrará en un pop up de error
+                salario.reportValidity() //para mostrar el pop up con el error
+            }else if(parseInt(salario.value) > 9999999){
+                event.preventDefault()
+                salario.setCustomValidity('Salario no puede ser mayor a 9999999')
+                salario.reportValidity()
+            }
+        }
+        
+    })
+</script>
 {% endblock %}

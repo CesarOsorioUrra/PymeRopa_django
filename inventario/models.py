@@ -11,8 +11,8 @@ class Prenda(models.Model):
 
     def __str__(self):
         return f"""
-            {self.numeroPrenda} | {self.nombrePrenda} |
-            {self.descripcionPrenda} | {self.cantidad} | {self.precioNetoUnitario}
+            n°: {self.numeroPrenda} | nombre: {self.nombrePrenda} |
+            desc: {self.descripcionPrenda} | cant: {self.cantidad} | precio: {self.precioNetoUnitario}
         """
 
 class PrendaMomentanea(models.Model):

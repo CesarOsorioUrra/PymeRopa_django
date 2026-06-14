@@ -17,28 +17,28 @@
         </tr>
     </thead>
     {% if compras %}
-    <tbody>
-        {% for compra in compras %}
-            <tr>
-                <td>{{ compra.numeroCompra }}</td>
-                <td>{{ compra.fechaCompra }}</td>
-                <td>{{ compra.iva }}</td>
-                <td>{{ compra.precioBrutoTotal }}</td>
-                <td>{{ compra.medioDePago }}</td>
-                <td>{{ compra.nombreProveedor }}</td>
-                <td>{{ compra.direccionProveedor }}</td>
-                {% if index %}
-                    <td>
-                        <a href="{% url 'compras:indexEliminarUnaCompra' compra.numeroCompra %}">Eliminar</a>
-                    </td>
-                {% elif administracion %}
-                    <td>
-                        <a href="{% url 'core:administracion_comprasEliminar' compra.numeroCompra %}">Eliminar</a>
-                    </td>
-                {% endif %}
-            </tr>
-        {% endfor %}
-    </tbody>
+        <tbody>
+            {% for compra in compras %}
+                <tr>
+                    <td>{{ compra.numeroCompra }}</td>
+                    <td>{{ compra.fechaCompra }}</td>
+                    <td>{{ compra.iva }}</td>
+                    <td>{{ compra.precioBrutoTotal }}</td>
+                    <td>{{ compra.medioDePago }}</td>
+                    <td>{{ compra.nombreProveedor }}</td>
+                    <td>{{ compra.direccionProveedor }}</td>
+                    {% if index %}
+                        <td>
+                            <a href="{% url 'compras:indexEliminarUnaCompra' compra.numeroCompra %}">Eliminar</a>
+                        </td>
+                    {% elif administracion %}
+                        <td>
+                            <a href="{% url 'core:administracion_comprasEliminar' compra.numeroCompra %}">Eliminar</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
     {% endif %}
 </table>
 </div>
@@ -58,21 +58,23 @@
         </tr>
     </thead>
     {% if comprasDetalle %}
-    <tbody>
-        {% for compraDetalle in comprasDetalle %}
-            <td>{{ compraDetalle.numeroCompra.numeroCompra }}</td>
-            <td>{{ compraDetalle.numeroPrenda.numeroPrenda }}</td>
-            <td>{{ compraDetalle.cantidadComprada }}</td>
-            <td>{{ compraDetalle.precioNetoUnitario }}</td>
-            <td>{{ compraDetalle.precioNetoTotal }}</td>
-            {% if compraEnCurso %}
-                <td>
-                    <a href="{% url 'compras:eliminarUnaCompraDetalleMomentanea' compraDetalle.numeroCompra.numeroCompra compraDetalle.numeroPrenda.numeroPrenda %}">Eliminar</a>
-                </td>
-            {% endif %}
-        {% endfor %}
-    </tbody>
-{% endif %}
+        <tbody>
+            {% for compraDetalle in comprasDetalle %}
+                <tr>
+                    <td>{{ compraDetalle.numeroCompra.numeroCompra }}</td>
+                    <td>{{ compraDetalle.numeroPrenda.numeroPrenda }}</td>
+                    <td>{{ compraDetalle.cantidadComprada }}</td>
+                    <td>{{ compraDetalle.precioNetoUnitario }}</td>
+                    <td>{{ compraDetalle.precioNetoTotal }}</td>
+                    {% if compraEnCurso %}
+                        <td>
+                            <a href="{% url 'compras:eliminarUnaCompraDetalleMomentanea' compraDetalle.numeroCompra.numeroCompra compraDetalle.numeroPrenda.numeroPrenda %}">Eliminar</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    {% endif %}
 </table>
 </div>
 

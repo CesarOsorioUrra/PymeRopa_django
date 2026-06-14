@@ -24,10 +24,13 @@ class InformacionUsuarioForm(forms.ModelForm):
     class Meta:
         model = InformacionUsuario
         fields = ["salario"]
+        widgets = {'salario': forms.NumberInput(attrs = {'min' : '0', 'max' : '9999999'})}
         def clean_salario(self): #para validar que salario no sea menor a 0
             salario = self.cleaned_data.get('salario')
             if salario < 0:
                 raise forms.ValidationError("El salario ingresado no puede ser negativo.")
+            elif salario > 9999999:
+                raise forms.ValidationError("El salario ingresado no puede ser mayor a 9999999.")
             return salario
 
 

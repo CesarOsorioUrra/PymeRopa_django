@@ -6,7 +6,7 @@
     <div class="col col-md-2 mx-auto">
         {% include 'includes/alertas.html' %}
         <h1>Registrar venta</h1>
-        <form action="{% url 'ventas:formulario' %}" method="POST" class="fw-bold">
+        <form action="{% url 'ventas:formulario' %}" method="POST" class="fw-bold" id="id_formVentas">
             {% csrf_token %}
             {{ formVenta.numeroVenta | as_crispy_field }}
             {{ formVenta.fechaVenta | as_crispy_field }}
@@ -25,8 +25,8 @@
             -->
             <button type = "submit" class = "btn btn-primary my-1" name="action" value="Agregar">Agregar venta a orden de venta</button>
             <!--Al boton para registrar las ventas en base de datos se le coloca formnovalidate para que no se tenga que tener datos ingresados en los inputs del formulario para poder guardar las ventas en la base de datos-->
-            <button formnovalidate type = "submit" class = "btn btn-primary my-1" name="action" value="Registrar">Registrar orden de venta</button>
-            <button formnovalidate type = "submit" class = "btn btn-primary my-1" name="action" value="Eliminar">Eliminar orden de venta</button>
+            <button formnovalidate type = "submit" class = "btn btn-primary my-1 excluir-de-validacion" name="action" value="Registrar">Registrar orden de venta</button>
+            <button formnovalidate type = "submit" class = "btn btn-primary my-1 excluir-de-validacion" name="action" value="Eliminar">Eliminar orden de venta</button>
         </form>
     </div>
 
@@ -35,6 +35,24 @@
     </div>
 </div>
 <script>
+    //funcion para ver si se puede convertir el texto ingresado en un int
+    function tryParseInt(text) {
+        if (/^[-+]?\d+$/.test(text)) {
+            return true;
+        }
+        return false;
+    }
+    //funcion para ver si se puede convertir el texto ingresado en un float
+    function tryParseFloat(text) {
+        if (typeof text !== 'string' || text.trim() === ''){
+            return false
+        } 
+        const num = Number(text);
+        return !isNaN(num);
+    }
+
+    const numeroVenta = document.getElementById('id_numeroVenta')
+    const fechaVenta = document.getElementById('id_fechaVenta')
     const cantidadVendida = document.getElementById('id_cantidadVendida')
     const precioNetoUnitario = document.getElementById('id_precioNetoUnitario')
     const precioNetoTotal = document.getElementById('id_precioNetoTotal')
@@ -49,5 +67,113 @@
     //esto debe hacerse con javascript porque se hace por el lado del cliente, y lo de django se hace por lado del servidor
     cantidadVendida.addEventListener('input', calcularPrecioBrutoTotal)
     precioNetoUnitario.addEventListener('input', calcularPrecioBrutoTotal)
+
+    fechaVenta.readOnly = true
+    precioNetoTotal.readOnly = true
+    precioBrutoTotal.readOnly = true
+
+    //debe cambiarse el tipo de scrolling ya que o sino no se renderizan los popups de validacion de inputs...
+    //...si para mostrar estos inputs se necesita hacer scrolling. Esto es un bug de Chrome.
+    document.documentElement.style.scrollBehavior = 'auto' 
+
+    numeroVenta.min = '1'
+    cantidadVendida.min = '1'
+    iva.min = '0'
+    iva.max = '100'
+    precioNetoUnitario.min = '0'
+    precioNetoTotal.min = '0'
+    precioBrutoTotal.min = '0'
+
+    const formVentas = document.getElementById('id_formVentas')
+
+    formVentas.addEventListener('input', function(event) {
+        //se usa para agregar el evento solo a los inputs
+        if(event.target.tagName === 'INPUT') {
+            event.target.setCustomValidity('') //para reiniciar el estado del mensaje de error, y para que no se quede pegado todo el tiempo mostrndo el mismo mensaje de error aunque se ponga un valor correcto
+        }
+    })
+
+    formVentas.addEventListener('submit', function(event){
+        //se exluye de la validacion frontend del formulario a los botones tipo "submit" que tengan 'excluir-de-validacion' en su class
+        if(event.submitter && event.submitter.matches('.excluir-de-validacion')) {
+            return null
+        }
+
+        if(!tryParseInt(numeroVenta.value)){
+            event.preventDefault()
+            numeroVenta.setCustomValidity("numeroVenta debe ser un numero entero.")
+            numeroVenta.reportValidity()  
+        }else{
+            if (parseInt(numeroVenta.value) <= 0){
+                event.preventDefault()
+                numeroVenta.setCustomValidity('numeroVenta no puede ser negativo o 0')
+                numeroVenta.reportValidity()
+            }
+        }
+
+        if(!tryParseInt(cantidadVendida.value)){
+            event.preventDefault()
+            cantidadVendida.setCustomValidity("cantidadVendida debe ser un numero entero.")
+            cantidadVendida.reportValidity()
+        }else{
+            if (parseInt(cantidadVendida.value) <= 0){
+                event.preventDefault()
+                cantidadVendida.setCustomValidity('cantidadVendida no puede ser negativo ni 0')
+                cantidadVendida.reportValidity()
+            }
+        }
+
+        if(!tryParseInt(iva.value)){
+            event.preventDefault()
+            iva.setCustomValidity("iva debe ser un numero entero (que representa un porcentaje).")
+            iva.reportValidity()
+        }else{
+            if (parseInt(iva.value) < 0){
+                event.preventDefault()
+                iva.setCustomValidity('iva no puede ser negativo')
+                iva.reportValidity()
+            }else if(parseInt(iva.value) > 100){
+                event.preventDefault()
+                iva.setCustomValidity('iva no puede ser mayor a 100')
+                iva.reportValidity()    
+            }
+        }
+
+        if(!tryParseFloat(precioNetoUnitario.value)){
+            event.preventDefault()
+            precioNetoUnitario.setCustomValidity("precioNetoUnitario debe ser un numero decimal.")
+            precioNetoUnitario.reportValidity()
+        }else{
+            if (parseFloat(precioNetoUnitario.value) < 0){
+                event.preventDefault()
+                precioNetoUnitario.setCustomValidity('precioNetoUnitario no puede ser negativo')
+                precioNetoUnitario.reportValidity()
+            }
+        }
+
+        if(!tryParseFloat(precioNetoTotal.value)){
+            event.preventDefault()
+            precioNetoTotal.setCustomValidity("precioNetoTotal debe ser un numero decimal.")
+            precioNetoTotal.reportValidity()
+        }else{
+            if (parseFloat(precioNetoTotal.value) < 0){
+                event.preventDefault()
+                precioNetoTotal.setCustomValidity('precioNetoTotal no puede ser negativo')
+                precioNetoTotal.reportValidity()
+            }
+        }
+
+        if(!tryParseFloat(precioBrutoTotal.value)){
+            event.preventDefault()
+            precioBrutoTotal.setCustomValidity("precioBrutoTotal debe ser un numero decimal.")
+            precioBrutoTotal.reportValidity()
+        }else{
+            if (parseFloat(precioBrutoTotal.value) < 0){
+                event.preventDefault()
+                precioBrutoTotal.setCustomValidity('precioBrutoTotal no puede ser negativo')
+                precioBrutoTotal.reportValidity()
+            }
+        }
+    })
 </script>
 {% endblock %}
