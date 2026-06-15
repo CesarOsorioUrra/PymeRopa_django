@@ -15,7 +15,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic.base import RedirectView
 
-# Create your views here.
+#Pagina de inicio, al ser visitada por un usuario, se le creará un registro de informacion usuario para ese usuario
+#Este registro se crea en caso de no existir.
+#Este registro de informaciones de usuario sirve para poder almacenar y mostrar los salarios y avisos de cada empleado.
 def home(request):
     if request.user.is_authenticated:
         existeInformacionUsuario = InformacionUsuario.objects.filter(usuario = request.user.id).exists()
@@ -36,6 +38,7 @@ def home(request):
 def administracion(request):
     return render(request, 'core/administracion.html')
 
+#Logica para poder crear un usuario en la pagina de administracion
 @user_passes_test(lambda usuario: usuario.is_superuser)
 @login_required
 def administracion_usuarios(request):
@@ -68,6 +71,7 @@ def administracion_usuarios(request):
     context = {"renderizarUsuarios": True, "usuarios": usuarios, "formUsuario": formUsuario}
     return render(request, 'core/panelAdministracion.html', context)
 
+#Vista generica para poder actualizar un usuario, para esto se debe pasar su id como parametro en la url
 class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     UserModel = get_user_model()
     model = UserModel
@@ -86,7 +90,7 @@ class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixi
         user.save()
         return super().form_valid(form)
 
-
+#Vista generica para poder eliminar un usuario, se debe pasar su id mediante la url
 class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     UserModel = get_user_model()
     model = UserModel
@@ -103,6 +107,7 @@ def administracion_prendas(request):
     context = {"renderizarPrendas": True, "prendas": prendas, "administracion": True}
     return render(request, 'core/panelAdministracion.html', context)
 
+#Vista generica para actualizar prenda, se pasa su numeroPrenda por la url
 class PrendaUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     model = Prenda
     form_class = PrendaForm
@@ -112,6 +117,7 @@ class PrendaUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMi
     def test_func(self): #esto se hace para ver si es super usuario
         return self.request.user.is_superuser
 
+#Vista generica para eliminar una prenda, se pasa su numeroPrenda por la url
 class PrendaDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Prenda
     pk_url_kwarg = 'numeroPrenda' #se usa esto para que la url busque 'numeroPrenda' en lugar de 'pk'
@@ -128,6 +134,7 @@ def administracion_compras(request):
     context = {"renderizarCompras": True, "compras": compras, "comprasDetalle": comprasDetalle, "administracion": True}
     return render(request, 'core/panelAdministracion.html', context)
 
+#Vista generica para eliminar una compra y sus detalles, se pasa su numeroCompra por la url
 class CompraDeleteView_Administracion(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Compra
     pk_url_kwarg = 'numeroCompra' #se usa esto para que la url busque 'numeroCompra' en lugar de 'pk'
@@ -144,6 +151,7 @@ def administracion_ventas(request):
     context = {"renderizarVentas": True, "ventas": ventas, "ventasDetalle": ventasDetalle, "administracion": True}
     return render(request, 'core/panelAdministracion.html', context)
 
+#Vista generica para eliminar una venta, se pasa pasa su numeroVenta por la url
 class VentaDeleteView_Administracion(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Venta
     pk_url_kwarg = 'numeroVenta' #se usa esto para que la url busque 'numeroVenta' en lugar de 'pk'
@@ -159,6 +167,7 @@ def administracion_informacionesUsuario(request):
     context = {"renderizarInformacionesUsuario": True, "informacionesUsuario": informacionesUsuario}
     return render(request, 'core/panelAdministracion.html', context)
 
+#Vista generica para poder actualizar el salario de un empleado
 class InformacionUsuarioUpdateView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     model = InformacionUsuario
     form_class = InformacionUsuarioForm
@@ -168,6 +177,7 @@ class InformacionUsuarioUpdateView(LoginRequiredMixin, UserPassesTestMixin, Succ
     def test_func(self): #esto se hace para ver si es super usuario
         return self.request.user.is_superuser
 
+#Vista generica 'RedirectView' que se usa para poner el aviso de un usuario como None, y luego redirecciona a la misma pagina
 class InformacionUsuarioEliminarAviso(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, RedirectView):
     pk_url_kwarg = 'id' #se usa esto para que la url busque 'id' en lugar de 'pk'
     success_message = "Aviso eliminado correctamente correctamente."
@@ -182,8 +192,7 @@ class InformacionUsuarioEliminarAviso(LoginRequiredMixin, UserPassesTestMixin, S
         informacionUsuario.save()
         return reverse_lazy("core:administracion_informacionesUsuario")
         
-
-#para publicar avisos
+#Logic de formulario para publicar avisos
 @user_passes_test(lambda usuario: usuario.is_superuser)
 @login_required
 def aviso(request):
@@ -191,7 +200,7 @@ def aviso(request):
         formAviso = AvisoForm(request.POST)
         if formAviso.is_valid():
             mensaje = formAviso.cleaned_data.get("mensaje")
-            usuarios = formAviso.cleaned_data.get("usuarios")
+            usuarios = formAviso.cleaned_data.get("usuarios") #son checkboxes
 
             for usuario in usuarios:
                 informacionUsuario = InformacionUsuario.objects.filter(usuario = usuario).first() #first() para que sea una instancia y no un queryset

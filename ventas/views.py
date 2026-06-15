@@ -13,7 +13,8 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.core.cache import cache
 
-# Create your views here.
+#Pagina index de ventas, en donde solo se muestran las ventas que ha realizado el usuario que esta logeado
+#En esta pagina se podrá eliminar todas, o una, de las ventas que haya realizado el empleado logeado, para lo cual se pedira una confirmacion
 @user_passes_test(lambda usuario: not usuario.is_superuser)
 @login_required
 def index(request):
@@ -28,6 +29,7 @@ def index(request):
     context = {"ventas" : ventas, "ventasDetalle": ventasDetalle, "index": True}
     return render(request, "ventas/index.html", context)
 
+#Vista para eliminar todas las ventas que haya registrado el usuario actual
 @user_passes_test(lambda usuario: not usuario.is_superuser)
 @login_required
 def eliminarTodasVentas(request):
@@ -37,6 +39,7 @@ def eliminarTodasVentas(request):
         return redirect("ventas:index")
     return render(request, "ventas/eliminarTodasVentas.html")
 
+#Vista generica para eliminar definitivamente una venta que haya sido registrada por el usuario
 class VentaDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Venta
     success_url = reverse_lazy('ventas:index')
@@ -47,6 +50,7 @@ class VentaDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMix
     def test_func(self): #esto se hace para ver si es super usuario
         return not self.request.user.is_superuser #ventas son realizadas por los no superusuarios
 
+#Vista generica para eliminar un detalle de venta de una venta en curso
 class VentaDetalleMomentaneaDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = VentaDetalleMomentanea
     success_url = reverse_lazy('ventas:formulario')
@@ -99,14 +103,19 @@ def formulario(request):
                 cantidadVendida = formVentaDetalle.cleaned_data.get("cantidadVendida")
                 cantidadPrenda = Prenda.objects.filter(numeroPrenda = numeroPrenda).first().cantidad # .first() para que sea una instancia y no un queryset
                 
+                #Se verifica que no se venda mas cantidad de prenda de lo que se tiene en el inventario
                 if cantidadVendida > cantidadPrenda:
                     messages.error(request, f"""No puede vender mayor cantidad de prendas de las que se tiene. En
                                      el inventario se tiene {cantidadPrenda} unidades, pero usted puso {cantidadVendida} unidades.""")
                     return redirect("ventas:formulario")
 
+                #Se debe guardar y obtener el numero de venta en curso en el cache, para que los detalles de venta correspondan a la misma venta
                 llave = 'numeroVentaEnCache'
                 numeroVentaEnCache = cache.get(llave)
 
+                #Si no está en el cache el numero de venta entonces se crea la instancia de ventaMomentanea (venta en curso)...
+                #... y luego se agrega su numero de venta al cache, para que luego este numero de venta sea compartido por...
+                #... los detalles de venta de esta orden de venta
                 if numeroVentaEnCache is None:
                     ventaMomentanea = VentaMomentanea()
                     ventaMomentanea.numeroVenta = formVenta.cleaned_data.get("numeroVenta")
@@ -116,9 +125,9 @@ def formulario(request):
                     ventaMomentanea.medioDePago = formVenta.cleaned_data.get("medioDePago")
                     ventaMomentanea.usuario = request.user
                     ventaMomentanea.save()
-                    cache.set(llave, ventaMomentanea.numeroVenta)
+                    cache.set(llave, ventaMomentanea.numeroVenta) #se guarda en cache el numero de venta de la venta en curso
 
-                numeroVentaEnCache = cache.get(llave)
+                numeroVentaEnCache = cache.get(llave) #se obtiene del cache el numero de venta de la venta en curso
                 ventaMomentanea = VentaMomentanea.objects.filter(numeroVenta = numeroVentaEnCache).first() #first() para que sea una intancia y no un queryset
 
                 ventaDetalleMomentanea = VentaDetalleMomentanea()
@@ -128,14 +137,14 @@ def formulario(request):
                 ventaDetalleMomentanea.precioNetoUnitario = formVentaDetalle.cleaned_data.get("precioNetoUnitario")
                 ventaDetalleMomentanea.precioNetoTotal = formVentaDetalle.cleaned_data.get("precioNetoTotal")
 
-                ventaDetalleMomentanea.save()
+                ventaDetalleMomentanea.save() #se guarda el detalle de la venta en curso
 
                 messages.success(request, "Venta agregada a orden de venta")
                 return redirect("ventas:formulario")
             
         elif action == 'Eliminar':
             VentaMomentanea.objects.filter(usuario = request.user).delete()
-            llave = 'numeroVentaEnCache'
+            llave = 'numeroVentaEnCache' #Al eliminar la orden de venta, se elimina del cache el numero de venta de la orden de venta en curso
             cache.delete(llave)
 
             messages.success(request, "Su orden de venta ha sido eliminada")
@@ -143,6 +152,15 @@ def formulario(request):
         
         #El boton para registrar ignora validaciones de los inputs del formulario en el cliente y en el servidor
         elif action == 'Registrar':
+            #Debe checkearse que se haya ingresado una orden de venta antes de registrar
+            if ventasMomentaneas.exists() == False:
+                messages.error(request, "Debe ingresar una orden de venta.")
+                return redirect("ventas:formulario")            
+            #Debe checkearse que la orden de venta tenga detalles antes de registrar
+            if ventasDetalleMomentaneas.exists() == False:
+                messages.error(request, "La orden de venta debe tener al menos un detalle.")
+                return redirect("ventas:formulario")
+
             for ventaMomentanea in ventasMomentaneas:
                 venta = Venta()
                 venta.numeroVenta = ventaMomentanea.numeroVenta
@@ -171,7 +189,7 @@ def formulario(request):
                 prenda.save()
 
             VentaMomentanea.objects.filter(usuario = request.user).delete() #tambien se borran los detalles de venta momentaneos
-            llave = 'numeroVentaEnCache'
+            llave = 'numeroVentaEnCache' #Al registrar la orden de venta, se elimina del cache el numero de la venta en curso
             cache.delete(llave)
                             
             messages.success(request, "Orden de venta registrada")

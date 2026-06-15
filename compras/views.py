@@ -101,6 +101,7 @@ def formulario(request):
                     messages.error(request, "El precio neto total no puede ser un número negativo.")
                     return redirect("compras:formulario")
                 
+                #Se debe guardar y obtener el numero de compra en curso en el cache, para que los detalles de compra correspondan a la misma compra
                 llave = 'numeroCompraEnCache'
                 numeroCompraEnCache = cache.get(llave)
 
@@ -114,7 +115,7 @@ def formulario(request):
                     compraMomentanea.direccionProveedor = formCompra.cleaned_data.get("direccionProveedor")
                     compraMomentanea.usuario = request.user
                     compraMomentanea.save()
-                    cache.set(llave, compraMomentanea.numeroCompra)
+                    cache.set(llave, compraMomentanea.numeroCompra) #se guarda en cache el numero de compra de la compra en curso
                 
                 #Como el detalle de compra tiene como FK el numero de Prenda, antes de crear la orden de compra, debe añadirse  en base de datos la Prenda con ese numero
                 #Se debe verificar si la Prenda esta registrada, si lo está entonces se obtiene su cantidad
@@ -143,7 +144,7 @@ def formulario(request):
                 prendaMomentanea.usuario = request.user
                 prendaMomentanea.save()
 
-                numeroCompraEnCache = cache.get(llave)
+                numeroCompraEnCache = cache.get(llave) #se obtiene del cache el numero de compra de la compra en curso
                 compraMomentanea = CompraMomentanea.objects.filter(numeroCompra = numeroCompraEnCache).first() #first() para que sea una intancia y no un queryset
             
                 compraDetalleMomentanea = CompraDetalleMomentanea()
@@ -162,7 +163,7 @@ def formulario(request):
         elif action == 'Eliminar':
             CompraMomentanea.objects.filter(usuario = request.user).delete()
             PrendaMomentanea.objects.filter(usuario = request.user).delete()
-            llave = 'numeroCompraEnCache'
+            llave = 'numeroCompraEnCache' #Al eliminar la orden de compra, se elimina del cache el numero de compra de la orden de compra en curso
             cache.delete(llave)
 
             messages.success(request, "Su orden de compra ha sido eliminada")
@@ -170,6 +171,15 @@ def formulario(request):
 
         #El boton para registrar ignora validaciones de los inputs del formulario en el cliente y en el servidor
         elif action == 'Registrar':
+            #Debe checkearse se haya ingresado una orden de compra antes de registrar
+            if comprasMomentaneas.exists() == False:
+                messages.error(request, "Debe ingresar una orden de compra.")
+                return redirect("compras:formulario")   
+            #Debe checkearse que la orden de compra tenga detalles antes de registrar         
+            if comprasDetalleMomentaneas.exists() == False:
+                messages.error(request, "La orden de compra debe tener al menos un detalle.")
+                return redirect("compras:formulario")
+
             for compraMomentanea in comprasMomentaneas:
                 compra = Compra()
                 compra.numeroCompra = compraMomentanea.numeroCompra
@@ -221,7 +231,7 @@ def formulario(request):
 
             CompraMomentanea.objects.filter(usuario = request.user).delete() #tambien se borran los detalles de compras momentaneas
             PrendaMomentanea.objects.filter(usuario = request.user).delete()
-            llave = 'numeroCompraEnCache'
+            llave = 'numeroCompraEnCache' #Al registrar la orden de compra, se elimina del cache el numero de la compra en curso
             cache.delete(llave)
 
             messages.success(request, "Orden de compra registrada")
