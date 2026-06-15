@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.core.cache import cache
 
 # Create your views here.
 @user_passes_test(lambda usuario: not usuario.is_superuser)
@@ -78,9 +79,6 @@ def formulario(request):
             if formVenta.is_valid() and formVentaDetalle.is_valid():
 
                 #Realizacion de validaciones en el servidor para que ciertos valores no sean negativos o cero
-                if formVenta.cleaned_data.get("numeroVenta") <= 0:
-                    messages.error(request, "El numero de venta no puede ser un número negativo, ni cero.")
-                    return redirect("ventas:formulario") 
                 if formVentaDetalle.cleaned_data.get("numeroPrenda").numeroPrenda <= 0:
                     messages.error(request, "El numero de prenda no puede ser un número negativo, ni cero.")
                     return redirect("ventas:formulario") 
@@ -106,18 +104,24 @@ def formulario(request):
                                      el inventario se tiene {cantidadPrenda} unidades, pero usted puso {cantidadVendida} unidades.""")
                     return redirect("ventas:formulario")
 
-                ventaMomentanea = VentaMomentanea()
+                llave = 'numeroVentaEnCache'
+                numeroVentaEnCache = cache.get(llave)
+
+                if numeroVentaEnCache is None:
+                    ventaMomentanea = VentaMomentanea()
+                    ventaMomentanea.numeroVenta = formVenta.cleaned_data.get("numeroVenta")
+                    ventaMomentanea.fechaVenta = formVenta.cleaned_data.get("fechaVenta")
+                    ventaMomentanea.iva = formVenta.cleaned_data.get("iva")
+                    ventaMomentanea.precioBrutoTotal = formVenta.cleaned_data.get("precioBrutoTotal")
+                    ventaMomentanea.medioDePago = formVenta.cleaned_data.get("medioDePago")
+                    ventaMomentanea.usuario = request.user
+                    ventaMomentanea.save()
+                    cache.set(llave, ventaMomentanea.numeroVenta)
+
+                numeroVentaEnCache = cache.get(llave)
+                ventaMomentanea = VentaMomentanea.objects.filter(numeroVenta = numeroVentaEnCache).first() #first() para que sea una intancia y no un queryset
+
                 ventaDetalleMomentanea = VentaDetalleMomentanea()
-
-                ventaMomentanea.numeroVenta = formVenta.cleaned_data.get("numeroVenta")
-                ventaMomentanea.fechaVenta = formVenta.cleaned_data.get("fechaVenta")
-                ventaMomentanea.iva = formVenta.cleaned_data.get("iva")
-                ventaMomentanea.precioBrutoTotal = formVenta.cleaned_data.get("precioBrutoTotal")
-                ventaMomentanea.medioDePago = formVenta.cleaned_data.get("medioDePago")
-                ventaMomentanea.usuario = request.user
-
-                ventaMomentanea.save()
-
                 ventaDetalleMomentanea.numeroVenta = ventaMomentanea
                 ventaDetalleMomentanea.numeroPrenda = formVentaDetalle.cleaned_data.get("numeroPrenda")
                 ventaDetalleMomentanea.cantidadVendida = formVentaDetalle.cleaned_data.get("cantidadVendida")
@@ -131,6 +135,9 @@ def formulario(request):
             
         elif action == 'Eliminar':
             VentaMomentanea.objects.filter(usuario = request.user).delete()
+            llave = 'numeroVentaEnCache'
+            cache.delete(llave)
+
             messages.success(request, "Su orden de venta ha sido eliminada")
             return redirect("ventas:formulario") 
         
@@ -164,7 +171,9 @@ def formulario(request):
                 prenda.save()
 
             VentaMomentanea.objects.filter(usuario = request.user).delete() #tambien se borran los detalles de venta momentaneos
-                
+            llave = 'numeroVentaEnCache'
+            cache.delete(llave)
+                            
             messages.success(request, "Orden de venta registrada")
             return redirect("ventas:index")
     else:

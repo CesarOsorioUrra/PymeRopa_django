@@ -1,25 +1,19 @@
 from django import forms
-from .models import Compra, CompraDetalle
+from .models import CompraMomentanea, CompraDetalleMomentanea
 
 class CompraForm(forms.ModelForm):
     class Meta:
-        model = Compra
-        fields = ["numeroCompra", "fechaCompra", "iva", "precioBrutoTotal", "medioDePago", 
+        model = CompraMomentanea
+        fields = ["fechaCompra", "iva", "precioBrutoTotal", "medioDePago", 
                   "nombreProveedor", "direccionProveedor"
                   ]
         mediosDePago = (('Efectivo', 'Efectivo'), ('Tarjeta de credito', 'Tarjeta de credito'), 
                 ('Tarjeta de debito', 'Tarjeta de debito'), ('Transferencia', 'Transferencia'))
         widgets = {
-            "numeroCompra": forms.NumberInput(attrs={'min' : '1'}),
             "iva": forms.NumberInput(attrs={'min' : '0', 'max' : '100'}),
             "precioBrutoTotal": forms.NumberInput(attrs={'readonly': 'readonly', 'min': '0'}),
             "medioDePago": forms.Select(choices=mediosDePago)
             }
-        def clean_numeroCompra(self):
-            numeroCompra = self.cleaned_data.get('numeroCompra')
-            if numeroCompra <= 0:
-                raise forms.ValidationError("El numeroCompra ingresado no puede ser negativo o 0.")
-            return numeroCompra
         def clean_iva(self):
             iva = self.cleaned_data.get('iva')
             if iva < 0:
@@ -35,7 +29,7 @@ class CompraForm(forms.ModelForm):
         
 class CompraDetalleForm(forms.ModelForm):
     class Meta:
-        model = CompraDetalle
+        model = CompraDetalleMomentanea
         fields = ["nombrePrenda", "descripcionPrenda", "cantidadComprada",
                   "precioNetoUnitario", "precioNetoTotal"
                   ]

@@ -8,7 +8,6 @@
         <h1>Registrar venta</h1>
         <form action="{% url 'ventas:formulario' %}" method="POST" class="fw-bold" id="id_formVentas">
             {% csrf_token %}
-            {{ formVenta.numeroVenta | as_crispy_field }}
             {{ formVenta.fechaVenta | as_crispy_field }}
             {{ formVenta.iva | as_crispy_field }}
             {{ formVenta.medioDePago | as_crispy_field }}
@@ -51,7 +50,6 @@
         return !isNaN(num);
     }
 
-    const numeroVenta = document.getElementById('id_numeroVenta')
     const fechaVenta = document.getElementById('id_fechaVenta')
     const cantidadVendida = document.getElementById('id_cantidadVendida')
     const precioNetoUnitario = document.getElementById('id_precioNetoUnitario')
@@ -76,7 +74,6 @@
     //...si para mostrar estos inputs se necesita hacer scrolling. Esto es un bug de Chrome.
     document.documentElement.style.scrollBehavior = 'auto' 
 
-    numeroVenta.min = '1'
     cantidadVendida.min = '1'
     iva.min = '0'
     iva.max = '100'
@@ -97,18 +94,6 @@
         //se exluye de la validacion frontend del formulario a los botones tipo "submit" que tengan 'excluir-de-validacion' en su class
         if(event.submitter && event.submitter.matches('.excluir-de-validacion')) {
             return null
-        }
-
-        if(!tryParseInt(numeroVenta.value)){
-            event.preventDefault()
-            numeroVenta.setCustomValidity("numeroVenta debe ser un numero entero.")
-            numeroVenta.reportValidity()  
-        }else{
-            if (parseInt(numeroVenta.value) <= 0){
-                event.preventDefault()
-                numeroVenta.setCustomValidity('numeroVenta no puede ser negativo o 0')
-                numeroVenta.reportValidity()
-            }
         }
 
         if(!tryParseInt(cantidadVendida.value)){

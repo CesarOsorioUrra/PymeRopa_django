@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import get_object_or_404
+from django.core.cache import cache
 
 # Create your views here.
 @user_passes_test(lambda usuario: usuario.is_superuser)
@@ -61,7 +62,6 @@ class CompraDetalleMomentaneaDeleteView(LoginRequiredMixin, UserPassesTestMixin,
         numeroPrenda = self.kwargs.get('numeroPrenda')
         return get_object_or_404(queryset, numeroCompra = numeroCompra, numeroPrenda = numeroPrenda)
         
-
 @user_passes_test(lambda usuario: usuario.is_superuser)
 @login_required
 def formulario(request):
@@ -79,11 +79,11 @@ def formulario(request):
             if formCompra.is_valid() and formCompraDetalle.is_valid() and formNumeroPrenda.is_valid():
 
                 #Realizacion de validaciones en el servidor para que ciertos valores no sean negativos o cero
-                if formCompra.cleaned_data.get("numeroCompra") <= 0:
-                    messages.error(request, "El número de compra no puede ser un número negativo, ni cero.")
-                    return redirect("compras:formulario") 
                 if formCompra.cleaned_data.get("iva") < 0:
                     messages.error(request, "El IVA no puede ser un número negativo.")
+                    return redirect("compras:formulario") 
+                elif formCompra.cleaned_data.get("iva") > 100:
+                    messages.error(request, "El IVA no puede ser mayor a 100.")
                     return redirect("compras:formulario") 
                 if formCompra.cleaned_data.get("precioBrutoTotal") < 0:
                     messages.error(request, "El precio bruto total no puede ser un número negativo.")
@@ -101,21 +101,21 @@ def formulario(request):
                     messages.error(request, "El precio neto total no puede ser un número negativo.")
                     return redirect("compras:formulario")
                 
-                compraMomentanea = CompraMomentanea()
-                compraDetalleMomentanea = CompraDetalleMomentanea()
+                llave = 'numeroCompraEnCache'
+                numeroCompraEnCache = cache.get(llave)
 
-                numeroCompra = formCompra.cleaned_data.get("numeroCompra")
-
-                compraMomentanea.numeroCompra = numeroCompra
-                compraMomentanea.fechaCompra = formCompra.cleaned_data.get("fechaCompra")
-                compraMomentanea.iva = formCompra.cleaned_data.get("iva")
-                compraMomentanea.precioBrutoTotal = formCompra.cleaned_data.get("precioBrutoTotal")
-                compraMomentanea.medioDePago = formCompra.cleaned_data.get("medioDePago")
-                compraMomentanea.nombreProveedor = formCompra.cleaned_data.get("nombreProveedor")
-                compraMomentanea.direccionProveedor = formCompra.cleaned_data.get("direccionProveedor")
-                compraMomentanea.usuario = request.user
-                compraMomentanea.save()
-
+                if numeroCompraEnCache is None:
+                    compraMomentanea = CompraMomentanea()
+                    compraMomentanea.fechaCompra = formCompra.cleaned_data.get("fechaCompra")
+                    compraMomentanea.iva = formCompra.cleaned_data.get("iva")
+                    compraMomentanea.precioBrutoTotal = formCompra.cleaned_data.get("precioBrutoTotal")
+                    compraMomentanea.medioDePago = formCompra.cleaned_data.get("medioDePago")
+                    compraMomentanea.nombreProveedor = formCompra.cleaned_data.get("nombreProveedor")
+                    compraMomentanea.direccionProveedor = formCompra.cleaned_data.get("direccionProveedor")
+                    compraMomentanea.usuario = request.user
+                    compraMomentanea.save()
+                    cache.set(llave, compraMomentanea.numeroCompra)
+                
                 #Como el detalle de compra tiene como FK el numero de Prenda, antes de crear la orden de compra, debe añadirse  en base de datos la Prenda con ese numero
                 #Se debe verificar si la Prenda esta registrada, si lo está entonces se obtiene su cantidad
                 #Esto es para la compra momentanea (para la orden de compra antes de registrarla)
@@ -143,6 +143,10 @@ def formulario(request):
                 prendaMomentanea.usuario = request.user
                 prendaMomentanea.save()
 
+                numeroCompraEnCache = cache.get(llave)
+                compraMomentanea = CompraMomentanea.objects.filter(numeroCompra = numeroCompraEnCache).first() #first() para que sea una intancia y no un queryset
+            
+                compraDetalleMomentanea = CompraDetalleMomentanea()
                 compraDetalleMomentanea.numeroCompra = compraMomentanea #se pone una instancia de CompraMomentanea pq la FK numeroCompra referencia a tabla CompraMomentanea
                 compraDetalleMomentanea.numeroPrenda = prendaMomentanea #se pone una instancia de PrendaMomentanea pq la FK numeroPrenda referencia a tabla PrendaMomentanea
                 compraDetalleMomentanea.nombrePrenda = formCompraDetalle.cleaned_data.get("nombrePrenda")
@@ -158,6 +162,9 @@ def formulario(request):
         elif action == 'Eliminar':
             CompraMomentanea.objects.filter(usuario = request.user).delete()
             PrendaMomentanea.objects.filter(usuario = request.user).delete()
+            llave = 'numeroCompraEnCache'
+            cache.delete(llave)
+
             messages.success(request, "Su orden de compra ha sido eliminada")
             return redirect("compras:formulario") 
 
@@ -214,6 +221,8 @@ def formulario(request):
 
             CompraMomentanea.objects.filter(usuario = request.user).delete() #tambien se borran los detalles de compras momentaneas
             PrendaMomentanea.objects.filter(usuario = request.user).delete()
+            llave = 'numeroCompraEnCache'
+            cache.delete(llave)
 
             messages.success(request, "Orden de compra registrada")
             return redirect("compras:index")

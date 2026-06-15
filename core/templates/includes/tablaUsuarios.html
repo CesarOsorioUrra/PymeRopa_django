@@ -22,7 +22,9 @@
             <td>{{ usuario.date_joined }}</td>
             <td>
                 <a href="{% url 'core:administracion_usuariosActualizar' usuario.id %}">Actualizar</a>
+                {% if not usuario.id == user.id %}
                 <a href="{% url 'core:administracion_usuariosEliminar' usuario.id %}">Eliminar</a>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

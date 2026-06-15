@@ -1,23 +1,17 @@
 from django import forms
-from .models import Venta, VentaDetalle
+from .models import VentaMomentanea, VentaDetalleMomentanea
 
 class VentaForm(forms.ModelForm):
     class Meta:
-        model = Venta
-        fields = ["numeroVenta", "fechaVenta", "iva", "precioBrutoTotal", "medioDePago"]
+        model = VentaMomentanea
+        fields = ["fechaVenta", "iva", "precioBrutoTotal", "medioDePago"]
         mediosDePago = (('Efectivo', 'Efectivo'), ('Tarjeta de credito', 'Tarjeta de credito'), 
                         ('Tarjeta de debito', 'Tarjeta de debito'), ('Transferencia', 'Transferencia'))
         widgets = {
-            "numeroVenta": forms.NumberInput(attrs={'min' : '1'}),
             "iva": forms.NumberInput(attrs={'min' : '0', 'max' : '100'}),
             "precioBrutoTotal": forms.NumberInput(attrs={'readonly': 'readonly', 'min' : '0'}),
             "medioDePago": forms.Select(choices=mediosDePago)
             }
-        def clean_numeroVenta(self):
-            numeroVenta = self.cleaned_data.get('numeroVenta')
-            if numeroVenta <= 0:
-                raise forms.ValidationError("El numeroVenta ingresado no puede ser negativo o 0.")
-            return numeroVenta
         def clean_iva(self):
             iva = self.cleaned_data.get('iva')
             if iva < 0:
@@ -33,7 +27,7 @@ class VentaForm(forms.ModelForm):
 
 class VentaDetalleForm(forms.ModelForm):
     class Meta:
-        model = VentaDetalle
+        model = VentaDetalleMomentanea
         fields = ["numeroPrenda", "cantidadVendida", "precioNetoUnitario", "precioNetoTotal"]
         widgets = {
             "cantidadVendida": forms.NumberInput(attrs={'min' : '1'}),

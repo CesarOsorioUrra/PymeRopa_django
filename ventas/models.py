@@ -6,7 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 class Venta(models.Model):
-    numeroVenta = models.IntegerField(primary_key=True, validators = [MinValueValidator(1)])
+    numeroVenta = models.AutoField(primary_key=True)
     fechaVenta = models.DateTimeField(default=timezone.now) #para que fecha sea la actual
     iva = models.IntegerField(default=19, validators = [MinValueValidator(0), MaxValueValidator(100)])
     precioBrutoTotal = models.DecimalField(max_digits=12, decimal_places=2, default=0, validators = [MinValueValidator(0)])
@@ -34,7 +34,7 @@ class VentaDetalle(models.Model):
         """
 
 class VentaMomentanea(models.Model):
-    numeroVenta = models.IntegerField(primary_key=True)
+    numeroVenta = models.AutoField(primary_key=True)
     fechaVenta = models.DateTimeField(default=timezone.now) #para que fecha sea la actual
     iva = models.IntegerField(default=19)
     precioBrutoTotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
